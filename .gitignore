@@ -1,3 +1,9 @@
+
+#Customize
+.DS_Store
+.vscode
+.gitignore
+
 # Prerequisites
 *.d
 
