@@ -7,22 +7,16 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
+#include "session.h"
+
 int main(int argc, char** argv)
 {
     printf("NetFlow v9 Collector Start\n");
 
-
-
+    udpConn();
 
     printf("NetFlow v9 Collector End\n");
 
     return 0;
 }
-
-    //Needs:
-    //Session Management
-    //receive Managament
-    //Template Management
-    //Cache Management
-    //File Management
 

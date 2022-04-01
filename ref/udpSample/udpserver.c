@@ -52,10 +52,11 @@ int main(void){
         printf("Msg from client: %s\n", client_message);
 
         // Respond to client:
-        strcpy(server_message, client_message);
+        // gets(client_message);
+        strcpy(server_message, "msg");
 
-        if (sendto(socket_desc, server_message, strlen(server_message), 0,
-            (struct sockaddr*)&client_addr, client_struct_length) < 0){
+        if (sendto(socket_desc, server_message, strlen(server_message), 0, (struct sockaddr*)&client_addr, client_struct_length) < 0)
+        {
             printf("Can't send\n");
             return -1;
         }
