@@ -29,9 +29,9 @@ int udpConn()
 
     // Set port and IP:
     from.sin_family = AF_INET;
-    from.sin_port = htons(2000);
+    from.sin_port = htons(9731);
     from.sin_addr.s_addr = inet_addr("127.0.0.1");
-
+    printf("binding port %u\n", ntohs(from.sin_port));
     // Bind to the set port and IP:
     if(bind(fd, (struct sockaddr*)&from, sizeof(from)) < 0)
     {
