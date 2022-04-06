@@ -1,4 +1,4 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int udpConstruct();
+void outputProcess();
