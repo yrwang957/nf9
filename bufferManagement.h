@@ -1,7 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int inQueue();
-int deQueue();
+#define BUFFSIZE 4
+
+typedef struct _Record
+{
+    char* record;
+    int len;
+}Record;
+
+int enQueue(char*, int);
+int deQueue(char*, int*);
 
 void bufferManagement();

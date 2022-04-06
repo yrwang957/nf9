@@ -9,7 +9,6 @@ void outputProcess()
 {
     for(;;)
     {
-        printf("%d\n", 2);
         sleep(1);
     }
 }

@@ -8,11 +8,13 @@
 #include <netinet/in.h>
 
 #include "session.h"
+#include "bufferManagement.h"
 
 int udpConstruct()
 {
     int fd;
     int nbytes;
+    int ret;
     struct sockaddr_in from;
     int fromLen = sizeof(from);
     char buffer[4096];
@@ -32,6 +34,7 @@ int udpConstruct()
     from.sin_port = htons(9731);
     from.sin_addr.s_addr = inet_addr("127.0.0.1");
     printf("binding port %d\n", ntohs(from.sin_port));
+
     // Bind to the set port and IP:
     if(bind(fd, (struct sockaddr*)&from, sizeof(from)) < 0)
     {
@@ -46,18 +49,30 @@ int udpConstruct()
         {
             if(nbytes == 0)
             {
-                printf("Connection closed\n");
-                close(fd);
-                return -1;
+                printf("receive 0, but will not close socket\n");
+                continue;
             }
 
             printf("Error while receiving\n");
             return -2;
         }
 
+#ifdef INFO
         printf("Reveiced %d bytes:\n", nbytes);
         printf("  %02x %02x %02x %02x\n", buffer[0], buffer[1], buffer[2], buffer[3]);
         printf("  %02x %02x %02x %02x ...\n\n", buffer[4], buffer[5], buffer[6], buffer[7]);
+#endif
+
+        if((ret = enQueue(buffer, nbytes)) != 0)
+        {
+            printf("enQueue failed, return %d\n", ret);
+        }
+#ifdef INFO
+        else
+        {
+            printf("enQueue success\n");
+        }
+#endif
     }
 
     return 0;
