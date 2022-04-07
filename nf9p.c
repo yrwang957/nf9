@@ -34,17 +34,17 @@ int main(int argc, char** argv)
 
         NF9Header* pH = (NF9Header*)buffer;
         printf("=Header=\n");
-        printf("version      :%u\n",    pH->version);
-        printf("count        :%u\n",    pH->count);
-        printf("systemUpTime :%u\n",    pH->systemUpTime);
-        printf("unixSeconds  :%u\n",    pH->unixSeconds);
-        printf("packetSeq    :%u\n",    pH->packetSeq);
-        printf("SourceId     :%u\n\n",  pH->SourceId);
+        printf("version      :%u\n",   (ntohs)(pH->version));
+        printf("count        :%u\n",   (ntohs)(pH->count));
+        printf("systemUpTime :%u\n",   (ntohl)(pH->systemUpTime));
+        printf("unixSeconds  :%u\n",   (ntohl)(pH->unixSeconds));
+        printf("packetSeq    :%u\n",   (ntohl)(pH->packetSeq));
+        printf("SourceId     :%u\n\n", (ntohl)(pH->SourceId));
 
         FlowSetHeader* pFS = (FlowSetHeader*)(buffer + sizeof(NF9Header));
         printf("=FlowSet=\n");
-        printf("FlowSet Id   :%u\n",    pFS->flowSetId);
-        printf("Length       :%u\n\n",  pFS->length);
+        printf("FlowSet Id   :%u\n",    (ntohs)(pFS->flowSetId));
+        printf("Length       :%u\n\n",  (ntohs)(pFS->length));
 
         if(pH->version != 9 || pH->count > 1024)
         {
@@ -55,7 +55,7 @@ int main(int argc, char** argv)
         printf("=Records=\n");
         for(i = 0 ; i < pH->count ; ++i)
         {
-            printf("%03d : Id %u, Len %u\n", i, pFS->flowSetId, pFS->length);
+            printf("%03d : Id %u, Len %u\n", i, (ntohs)(pFS->flowSetId), (ntohs)(pFS->length));
             switch(pFS->flowSetId)
             {
             // +-----------------+
@@ -114,27 +114,30 @@ int constructUdp(int bindPort)
 
 int receiveUdp()
 {
+    unsigned char ff = 0xff;
     int fromLen = sizeof(from);
 
-    if((nbytes = recvfrom(fd, buffer, sizeof(buffer), 0, (struct sockaddr*)&from, (socklen_t *)&fromLen)) <= 0)
+    nbytes = recvfrom(fd, buffer, sizeof(buffer), 0, (struct sockaddr*)&from, (socklen_t *)&fromLen);
+    if(nbytes <= 0)
     {
-        if(nbytes == 0)
-        {
-            printf("received zero len\n");
-            return -1;
-        }
-
-        printf("Error while receiving\n");
+        printf("%s\n", nbytes == 0 ? "received zero len" : "Error while receiving");
         return -1;
     }
 
     printf("=UDP=\n");
     printf("received %d bytes:\n", nbytes);
-    printf("  %02x %02x %02x %02x\n",       buffer[ 0], buffer[ 1], buffer[ 2], buffer[ 3]);
-    printf("  %02x %02x %02x %02x\n",       buffer[ 4], buffer[ 5], buffer[ 6], buffer[ 7]);
-    printf("  %02x %02x %02x %02x\n",       buffer[ 8], buffer[ 9], buffer[10], buffer[11]);
-    printf("  %02x %02x %02x %02x\n",       buffer[12], buffer[13], buffer[14], buffer[15]);
-    printf("  %02x %02x %02x %02x ...\n\n", buffer[16], buffer[17], buffer[18], buffer[19]);
+char* p = buffer;
+    printf("  %02x %02x %02x %02x\n",       p[ 0]&ff, p[ 1]&ff, p[ 2]&ff, p[ 3]&ff);
+    printf("  %02x %02x %02x %02x\n",       p[ 4]&ff, p[ 5]&ff, p[ 6]&ff, p[ 7]&ff);
+    printf("  %02x %02x %02x %02x\n",       p[ 8]&ff, p[ 9]&ff, p[10]&ff, p[11]&ff);
+    printf("  %02x %02x %02x %02x\n",       p[12]&ff, p[13]&ff, p[14]&ff, p[15]&ff);
+    printf("  %02x %02x %02x %02x \n\n",    p[16]&ff, p[17]&ff, p[18]&ff, p[19]&ff);
+p += 20;
+printf("  %02x %02x %02x %02x\n",       p[ 0]&ff, p[ 1]&ff, p[ 2]&ff, p[ 3]&ff);
+printf("  %02x %02x %02x %02x\n",       p[ 4]&ff, p[ 5]&ff, p[ 6]&ff, p[ 7]&ff);
+printf("  %02x %02x %02x %02x\n",       p[ 8]&ff, p[ 9]&ff, p[10]&ff, p[11]&ff);
+printf("  %02x %02x %02x %02x\n",       p[12]&ff, p[13]&ff, p[14]&ff, p[15]&ff);
+printf("  %02x %02x %02x %02x \n\n",    p[16]&ff, p[17]&ff, p[18]&ff, p[19]&ff);
 
     return 0;
 }
