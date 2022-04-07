@@ -4,7 +4,7 @@
 #include <sys/socket.h>
 
 #define BINDING_ADDR "192.168.12.119"
-#define BINDING_PORT 17500
+#define BINDING_PORT 8000
 
 int fd;
 int nbytes;

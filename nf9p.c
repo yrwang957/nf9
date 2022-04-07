@@ -14,10 +14,12 @@ int main(int argc, char** argv)
 {
     int i;
     int ret;
+    int bindPort;
 
     printf("NFv9 parser Start\n");
 
-    if((ret = constructUdp()) < 0)
+    bindPort = (argc >= 2) ? atoi(argv[1]) : BINDING_PORT;
+    if((ret = constructUdp(bindPort)) < 0)
     {
         printf("Error in constructUdp\n");
         return -1;
@@ -87,7 +89,7 @@ int main(int argc, char** argv)
     return 0;
 }
 
-int constructUdp()
+int constructUdp(int bindPort)
 {
     memset(buffer, '\0', sizeof(buffer));
 
@@ -99,14 +101,14 @@ int constructUdp()
 
     from.sin_family = AF_INET;
     from.sin_addr.s_addr = htonl(INADDR_ANY);
-    from.sin_port = htons(BINDING_PORT);
+    from.sin_port = htons(bindPort);
     if(bind(fd, (struct sockaddr*)&from, sizeof(from)) < 0)
     {
         printf("Error while binding \n");
         return -1;
     }
 
-    printf("Socket created in :%d\n", BINDING_PORT);
+    printf("Socket created in :%d\n", bindPort);
     return 0;
 }
 
