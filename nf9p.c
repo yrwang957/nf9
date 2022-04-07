@@ -12,6 +12,7 @@
 
 int main(int argc, char** argv)
 {
+    int i;
     int ret;
 
     printf("NFv9 parser Start\n");
@@ -43,30 +44,42 @@ int main(int argc, char** argv)
         printf("FlowSet Id   :%u\n",    pFS->flowSetId);
         printf("Length       :%u\n\n",  pFS->length);
 
-        switch(pFS->flowSetId)
+        if(pH->version != 9 || pH->count > 1024)
         {
-            //Template
-            case FLOWSET_TEMPLATE:
+            printf("Drop due to version or count\n\n");
+            continue;
+        }
+
+        printf("=Records=\n");
+        for(i = 0 ; i < pH->count ; ++i)
+        {
+            printf("%03d : Id %u, Len %u\n", i, pFS->flowSetId, pFS->length);
+            switch(pFS->flowSetId)
+            {
             // +-----------------+
             // | template        |
             // +-----------------+
-
+            case TEMPLATE_FLOWSET:
+                templateFlowSet(pFS + sizeof(FlowSetHeader));
             break;
-            //Option Template
-            case FLOWSET_OTEMPLATE:
+
             // +-----------------+
             // | Option template |
             // +-----------------+
-
+            case OPTION_TEMPLATE:
+                optionTemplate(pFS + sizeof(FlowSetHeader));
             break;
-            //Data
-            default:
+
             // +-----------------+
             // | data            |
             // +-----------------+
-
-            break;
+            default:
+                data(pFS);
+                break;
+            }
+            pFS += pFS->length;
         }
+        printf("\n");
 
     }
 
@@ -85,7 +98,7 @@ int constructUdp()
     }
 
     from.sin_family = AF_INET;
-    from.sin_addr.s_addr = inet_addr(BINDING_ADDR);
+    from.sin_addr.s_addr = htonl(INADDR_ANY);
     from.sin_port = htons(BINDING_PORT);
     if(bind(fd, (struct sockaddr*)&from, sizeof(from)) < 0)
     {
@@ -93,7 +106,7 @@ int constructUdp()
         return -1;
     }
 
-    printf("Socket created in %s:%d\n", BINDING_ADDR, BINDING_PORT);
+    printf("Socket created in :%d\n", BINDING_PORT);
     return 0;
 }
 
