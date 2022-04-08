@@ -8,7 +8,7 @@ int templateFlowSet(FlowSetHeader* pFs)
 {
     int i = 0;
     int ret = 0;
-    int length = (ntohs)(pFs->length);
+    int length = ntohs(pFs->length);
     int pLength = 4;
 
     printf("=TemplateFlowSet=\n");
@@ -21,8 +21,8 @@ int templateFlowSet(FlowSetHeader* pFs)
     // +-----------------+
     for(i = 0 ; ; ++i)
     {
-        int templateId = (ntohs)(t->templateId);
-        int fieldCount = (ntohs)(t->fieldCount);
+        int templateId = ntohs(t->templateId);
+        int fieldCount = ntohs(t->fieldCount);
         int tLength = 4 + (fieldCount << 2);
 
         printf("%03d : tId %d, tLength %d, FieldCount %d\n", i, templateId, tLength, fieldCount);
@@ -48,7 +48,7 @@ int optionTemplate(FlowSetHeader* pFs)
 {
     int i = 0;
     int ret = 0;
-    int length = (ntohs)(pFs->length);
+    int length = ntohs(pFs->length);
     int pLength = 4;
     int padding= (length - 4) & 0x03;
 
@@ -62,9 +62,9 @@ int optionTemplate(FlowSetHeader* pFs)
     // +-----------------+
     for(i = 0; ; ++i)
     {
-        int templateId = (ntohs)(t->templateId);
-        int scopeLength = (ntohs)(t->optionScopeLength);
-        int optionsLength = (ntohs)(t->optionsLength);
+        int templateId = ntohs(t->templateId);
+        int scopeLength = ntohs(t->optionScopeLength);
+        int optionsLength = ntohs(t->optionsLength);
         int otLength = optionsLength;
 
         printf("%03d : tId %d, oLength %d, counts %d|%d\n", i, templateId, optionsLength, scopeLength >> 2, optionsLength >> 2);
@@ -90,8 +90,8 @@ int data(FlowSetHeader* pFs)
 {
     int ret = 0;
     Data* d = (Data*)pFs;
-    int flowSetId = (ntohs)(d->flowSetId);
-    int length = (ntohs)(d->length);
+    int flowSetId = ntohs(d->flowSetId);
+    int length = ntohs(d->length);
     int padding = (length - 4) & 0x03;
 
     printf("=Data=\n");

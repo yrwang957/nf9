@@ -8,7 +8,6 @@ nf9p: nf9p.o nf9r.o buffer.o watch.o
 	${CC} nf9p.o nf9r.o buffer.o watch.o ${CFLAGS} ${INC} ${LIB} -o nf9p
 
 nf9p.o: nf9p.c
-	${CFLAGS} += -lpthread
 	${CC} nf9p.c ${CFLAGS} ${INC} ${LIB} -c
 
 nf9r.o: nf9r.c

@@ -17,7 +17,7 @@ int main(int argc, char** argv)
     int i;
     int ret;
     int bindPort;
-    pthread_t tw;
+    //pthread_t tw;
 
     printf("NFv9 parser start\n");
 
@@ -30,7 +30,7 @@ int main(int argc, char** argv)
 
     initBuffer();
 
-    pthread_create(&tw, NULL, (void*)watch, NULL);
+    //pthread_create(&tw, NULL, (void*)watch, NULL);
 
     for(;;)
     {
@@ -41,19 +41,19 @@ int main(int argc, char** argv)
 
         NF9Header* pH = (NF9Header*)buffer;
         printf("=Header=\n");
-        printf("version      :%u\n",   (ntohs)(pH->version));
-        printf("count        :%u\n",   (ntohs)(pH->count));
-        printf("systemUpTime :%u\n",   (ntohl)(pH->systemUpTime));
-        printf("unixSeconds  :%u\n",   (ntohl)(pH->unixSeconds));
-        printf("packetSeq    :%u\n",   (ntohl)(pH->packetSeq));
-        printf("SourceId     :%u\n\n", (ntohl)(pH->SourceId));
+        printf("version      :%u\n",   ntohs(pH->version));
+        printf("count        :%u\n",   ntohs(pH->count));
+        printf("systemUpTime :%u\n",   ntohl(pH->systemUpTime));
+        printf("unixSeconds  :%u\n",   ntohl(pH->unixSeconds));
+        printf("packetSeq    :%u\n",   ntohl(pH->packetSeq));
+        printf("SourceId     :%u\n\n", ntohl(pH->SourceId));
 
         FlowSetHeader* pFS = (FlowSetHeader*)(buffer + sizeof(NF9Header));
         printf("=FlowSet=\n");
-        printf("FlowSet Id   :%u\n",    (ntohs)(pFS->flowSetId));
-        printf("Length       :%u\n\n",  (ntohs)(pFS->length));
+        printf("FlowSet Id   :%u\n",    ntohs(pFS->flowSetId));
+        printf("Length       :%u\n\n",  ntohs(pFS->length));
 
-        if(((ntohs)(pH->version) != 9) || ((ntohs)(pH->count) >= 1024))
+        if(((ntohs(pH->version)) != 9) || ((ntohs(pH->count)) >= 1024))
         {
             printf("Drop due to version or count\n\n");
             continue;
@@ -63,10 +63,10 @@ int main(int argc, char** argv)
         // | Unpack FlowSet  |
         // +-----------------+
         printf("=Records=\n");
-        for(i = 0 ; i < (ntohs)(pH->count) ; ++i)
+        for(i = 0 ; i < ntohs(pH->count) ; ++i)
         {
-            int flowSetId = (ntohs)(pFS->flowSetId);
-            int length = (ntohs)(pFS->length);
+            int flowSetId = ntohs(pFS->flowSetId);
+            int length = ntohs(pFS->length);
 
             printf("%03d : Id %u, Len %u\n", i, flowSetId, length);
             if(length <= sizeof(FlowSetHeader))
@@ -105,7 +105,7 @@ int main(int argc, char** argv)
 
     }
 
-    pthread_join(tw, NULL);
+    //pthread_join(tw, NULL);
 
     printf("NFv9 parser end\n");
     return 0;
