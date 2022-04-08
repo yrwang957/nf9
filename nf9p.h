@@ -10,5 +10,6 @@ int nbytes;
 struct sockaddr_in from;
 char buffer[65535];
 
+void initBuffer();
 int constructUdp();
 int receiveUdp();

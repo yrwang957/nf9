@@ -9,6 +9,7 @@
 
 #include "nf9p.h"
 #include "nf9r.h"
+#include "buffer.h"
 
 int main(int argc, char** argv)
 {
@@ -25,9 +26,11 @@ int main(int argc, char** argv)
         return -1;
     }
 
+    initBuffer();
+
     for(;;)
     {
-        if((ret=receiveUdp()) < 0)
+        if((ret = receiveUdp()) < 0)
         {
             continue;
         }
@@ -46,40 +49,54 @@ int main(int argc, char** argv)
         printf("FlowSet Id   :%u\n",    (ntohs)(pFS->flowSetId));
         printf("Length       :%u\n\n",  (ntohs)(pFS->length));
 
-        if(pH->version != 9 || pH->count > 1024)
+        if(((ntohs)(pH->version) != 9) || ((ntohs)(pH->count) >= 1024))
         {
             printf("Drop due to version or count\n\n");
             continue;
         }
 
+        // +-----------------+
+        // | Unpack FlowSet  |
+        // +-----------------+
         printf("=Records=\n");
-        for(i = 0 ; i < pH->count ; ++i)
+        for(i = 0 ; i < (ntohs)(pH->count) ; ++i)
         {
-            printf("%03d : Id %u, Len %u\n", i, (ntohs)(pFS->flowSetId), (ntohs)(pFS->length));
-            switch(pFS->flowSetId)
+            int flowSetId = (ntohs)(pFS->flowSetId);
+            int length = (ntohs)(pFS->length);
+
+            printf("%03d : Id %u, Len %u\n", i, flowSetId, length);
+            if(length <= sizeof(FlowSetHeader))
+            {
+//                printf("flowset length %d too less, continue\n", length);
+                break;
+            }
+
+            switch(flowSetId)
             {
             // +-----------------+
-            // | template        |
+            // | Template sets   |
             // +-----------------+
             case TEMPLATE_FLOWSET:
-                templateFlowSet(pFS + sizeof(FlowSetHeader));
+                templateFlowSet(pFS);
+//                printf("templateFlowSet end\n\n");
             break;
 
-            // +-----------------+
-            // | Option template |
-            // +-----------------+
+            // +----------------------+
+            // | Option Template sets |
+            // +----------------------+
             case OPTION_TEMPLATE:
-                optionTemplate(pFS + sizeof(FlowSetHeader));
+                optionTemplate(pFS);
             break;
 
             // +-----------------+
-            // | data            |
+            // | Data sets       |
             // +-----------------+
             default:
                 data(pFS);
                 break;
             }
-            pFS += pFS->length;
+
+            pFS = (FlowSetHeader*)((char*)pFS + length);
         }
         printf("\n");
 
@@ -126,18 +143,28 @@ int receiveUdp()
 
     printf("=UDP=\n");
     printf("received %d bytes:\n", nbytes);
-char* p = buffer;
+
+    char* p = buffer;
     printf("  %02x %02x %02x %02x\n",       p[ 0]&ff, p[ 1]&ff, p[ 2]&ff, p[ 3]&ff);
     printf("  %02x %02x %02x %02x\n",       p[ 4]&ff, p[ 5]&ff, p[ 6]&ff, p[ 7]&ff);
     printf("  %02x %02x %02x %02x\n",       p[ 8]&ff, p[ 9]&ff, p[10]&ff, p[11]&ff);
     printf("  %02x %02x %02x %02x\n",       p[12]&ff, p[13]&ff, p[14]&ff, p[15]&ff);
     printf("  %02x %02x %02x %02x \n\n",    p[16]&ff, p[17]&ff, p[18]&ff, p[19]&ff);
-p += 20;
-printf("  %02x %02x %02x %02x\n",       p[ 0]&ff, p[ 1]&ff, p[ 2]&ff, p[ 3]&ff);
-printf("  %02x %02x %02x %02x\n",       p[ 4]&ff, p[ 5]&ff, p[ 6]&ff, p[ 7]&ff);
-printf("  %02x %02x %02x %02x\n",       p[ 8]&ff, p[ 9]&ff, p[10]&ff, p[11]&ff);
-printf("  %02x %02x %02x %02x\n",       p[12]&ff, p[13]&ff, p[14]&ff, p[15]&ff);
-printf("  %02x %02x %02x %02x \n\n",    p[16]&ff, p[17]&ff, p[18]&ff, p[19]&ff);
 
     return 0;
+}
+
+void initBuffer()
+{
+    int i;
+    for(i = 0 ; i < BUF_SIZE ; ++i)
+    {
+        bs[i].using = false;
+        bs[i].time = 0;
+        bs[i].id = -1;
+        bs[i].count = 0;
+        bs[i].length = 0;
+        bs[i].type = 0;
+        bs[i].p = NULL;
+    }
 }

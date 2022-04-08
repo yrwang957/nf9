@@ -26,7 +26,6 @@ typedef struct _Data
 {
     uint16_t flowSetId;
     uint16_t length;
-    void*     records;
 }Data;
 
 typedef struct _Field
@@ -39,7 +38,6 @@ typedef struct _TemplateFlowSet
 {
     uint16_t templateId;
     uint16_t fieldCount;
-    Field     fields;
 }TemplateFlowSet;
 
 typedef struct _OptionsTemplate
@@ -47,8 +45,6 @@ typedef struct _OptionsTemplate
     uint16_t templateId;
     uint16_t optionScopeLength;
     uint16_t optionsLength;
-    Field     OptionFields;
-    void*     fields;
 }OptionsTemplate;
 
 int templateFlowSet(FlowSetHeader*);
