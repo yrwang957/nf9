@@ -50,7 +50,7 @@ int optionTemplate(FlowSetHeader* pFs)
     int ret = 0;
     int length = (ntohs)(pFs->length);
     int pLength = 4;
-    int padding= (length - 4) & 0x00000003;
+    int padding= (length - 4) & 0x03;
 
     printf("=OptionsTemplate=\n");
     printf("Length %d, padding %d\n\n", length, padding);

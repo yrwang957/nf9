@@ -5,6 +5,20 @@
 
 #include "buffer.h"
 
+void initBuffer()
+{
+    int i;
+    for(i = 0 ; i < BUF_SIZE ; ++i)
+    {
+        bs[i].using = false;
+        bs[i].time = 0;
+        bs[i].id = -1;
+        bs[i].length = 0;
+        bs[i].type = 0;
+        bs[i].p = NULL;
+    }
+}
+
 int enB(int type, int length, int id, void* p)
 {
     int ret = 0;

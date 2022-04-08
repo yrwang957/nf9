@@ -6,18 +6,20 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <pthread.h>
 
 #include "nf9p.h"
 #include "nf9r.h"
-#include "buffer.h"
+#include "watch.h"
 
 int main(int argc, char** argv)
 {
     int i;
     int ret;
     int bindPort;
+    pthread_t tw;
 
-    printf("NFv9 parser Start\n");
+    printf("NFv9 parser start\n");
 
     bindPort = (argc >= 2) ? atoi(argv[1]) : BINDING_PORT;
     if((ret = constructUdp(bindPort)) < 0)
@@ -27,6 +29,8 @@ int main(int argc, char** argv)
     }
 
     initBuffer();
+
+    pthread_create(&tw, NULL, (void*)watch, NULL);
 
     for(;;)
     {
@@ -78,15 +82,14 @@ int main(int argc, char** argv)
             // +-----------------+
             case TEMPLATE_FLOWSET:
                 templateFlowSet(pFS);
-//                printf("templateFlowSet end\n\n");
-            break;
+                break;
 
             // +----------------------+
             // | Option Template sets |
             // +----------------------+
             case OPTION_TEMPLATE:
                 optionTemplate(pFS);
-            break;
+                break;
 
             // +-----------------+
             // | Data sets       |
@@ -102,7 +105,9 @@ int main(int argc, char** argv)
 
     }
 
-    printf("NFv9 parser End\n");
+    pthread_join(tw, NULL);
+
+    printf("NFv9 parser end\n");
     return 0;
 }
 
@@ -152,19 +157,4 @@ int receiveUdp()
     printf("  %02x %02x %02x %02x \n\n",    p[16]&ff, p[17]&ff, p[18]&ff, p[19]&ff);
 
     return 0;
-}
-
-void initBuffer()
-{
-    int i;
-    for(i = 0 ; i < BUF_SIZE ; ++i)
-    {
-        bs[i].using = false;
-        bs[i].time = 0;
-        bs[i].id = -1;
-        bs[i].count = 0;
-        bs[i].length = 0;
-        bs[i].type = 0;
-        bs[i].p = NULL;
-    }
 }
