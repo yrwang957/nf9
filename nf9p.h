@@ -2,14 +2,9 @@
 #include <stdlib.h>
 #include <sys/socket.h>
 
-#define BINDING_ADDR "192.168.12.119"
-#define BINDING_PORT 8000
+//return value
+#define SUCCESS  0
+#define FAILED  -1
 
-int fd;
-int nbytes;
-struct sockaddr_in from;
-char buffer[65535];
-
-void initBuffer();
-int constructUdp();
-int receiveUdp();
+int init(int, char**);
+void run();

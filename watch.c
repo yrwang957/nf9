@@ -6,18 +6,24 @@
 
 #include "watch.h"
 
+int initWatch()
+{
+    return SUCCESS;
+}
+
 void watch()
 {
     struct timeval tv;
-    tv.tv_sec = 0;
-    tv.tv_usec = 100000; //1000000 = 1sec
 
     for(;;)
     {
         //+--------+
         //| things |
         //+--------+
+        printf("watch wake-up\n");
 
+        tv.tv_sec = 5;
+        tv.tv_usec = 100000; //1000000 = 1sec
         select(0, NULL, NULL, NULL, &tv);
     }
 }

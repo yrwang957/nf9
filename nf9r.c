@@ -27,7 +27,7 @@ int templateFlowSet(FlowSetHeader* pFs)
 
         printf("%03d : tId %d, tLength %d, FieldCount %d\n", i, templateId, tLength, fieldCount);
 
-        if((ret = enB(BUF_TMPLATE, tLength, templateId, (void*)t)) != SUCCESS)
+        if((ret = putBuf(BUF_TMPLATE, tLength, templateId, (void*)t)) != SUCCESS)
         {
             printf("ret value %d\n", ret);
         }
@@ -69,7 +69,7 @@ int optionTemplate(FlowSetHeader* pFs)
 
         printf("%03d : tId %d, oLength %d, counts %d|%d\n", i, templateId, optionsLength, scopeLength >> 2, optionsLength >> 2);
 
-        if((ret = enB(BUF_OTEMPLATE, optionsLength, templateId, (void*)t)) != SUCCESS)
+        if((ret = putBuf(BUF_OTEMPLATE, optionsLength, templateId, (void*)t)) != SUCCESS)
         {
             printf("ret value %d\n", ret);
         }
@@ -100,7 +100,7 @@ int data(FlowSetHeader* pFs)
     // +-----------------------+
     // | Data no need unpack   |
     // +-----------------------+
-    if((ret = enB(BUF_DATA, length, flowSetId, (void*)d)) != SUCCESS)
+    if((ret = putBuf(BUF_DATA, length, flowSetId, (void*)d)) != SUCCESS)
     {
         printf("ret value %d\n", ret);
     }

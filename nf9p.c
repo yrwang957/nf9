@@ -3,43 +3,33 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/types.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
 #include <pthread.h>
 
 #include "nf9p.h"
 #include "nf9r.h"
+#include "buffer.h"
+#include "socket.h"
 #include "watch.h"
 
 int main(int argc, char** argv)
 {
     int i;
-    int ret;
-    int bindPort;
-    //pthread_t tw;
+    pthread_t tw;
 
     printf("NFv9 parser start\n");
 
-    bindPort = (argc >= 2) ? atoi(argv[1]) : BINDING_PORT;
-    if((ret = constructUdp(bindPort)) < 0)
-    {
-        printf("Error in constructUdp\n");
-        return -1;
-    }
+    init(argc, argv);
 
-    initBuffer();
-
-    //pthread_create(&tw, NULL, (void*)watch, NULL);
+    pthread_create(&tw, NULL, (void*)watch, NULL);
 
     for(;;)
     {
-        if((ret = receiveUdp()) < 0)
+        if(receiveUdp() != SUCCESS)
         {
             continue;
         }
 
-        NF9Header* pH = (NF9Header*)buffer;
+        NF9Header* pH = (NF9Header*)sockBuf;
         printf("=Header=\n");
         printf("version      :%u\n",   ntohs(pH->version));
         printf("count        :%u\n",   ntohs(pH->count));
@@ -48,7 +38,7 @@ int main(int argc, char** argv)
         printf("packetSeq    :%u\n",   ntohl(pH->packetSeq));
         printf("SourceId     :%u\n\n", ntohl(pH->SourceId));
 
-        FlowSetHeader* pFS = (FlowSetHeader*)(buffer + sizeof(NF9Header));
+        FlowSetHeader* pFS = (FlowSetHeader*)(sockBuf + sizeof(NF9Header));
         printf("=FlowSet=\n");
         printf("FlowSet Id   :%u\n",    ntohs(pFS->flowSetId));
         printf("Length       :%u\n\n",  ntohs(pFS->length));
@@ -105,56 +95,36 @@ int main(int argc, char** argv)
 
     }
 
-    //pthread_join(tw, NULL);
+    pthread_join(tw, NULL);
 
     printf("NFv9 parser end\n");
     return 0;
 }
 
-int constructUdp(int bindPort)
+
+
+int init(int argc, char** argv)
 {
-    memset(buffer, '\0', sizeof(buffer));
+    int ret = SUCCESS;
+    int bindPort = (argc >= 2) ? atoi(argv[1]) : BINDING_PORT;
 
-    if((fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
+    if((ret = initBuf()) != SUCCESS)
     {
-        printf("Error while socket\n");
-        return -1;
+        printf("initsockBuf failed\n");
+        return ret;
     }
 
-    from.sin_family = AF_INET;
-    from.sin_addr.s_addr = htonl(INADDR_ANY);
-    from.sin_port = htons(bindPort);
-    if(bind(fd, (struct sockaddr*)&from, sizeof(from)) < 0)
+    if((ret = initSocket(bindPort)) != SUCCESS)
     {
-        printf("Error while binding \n");
-        return -1;
+        printf("initSocket failed\n");
+        return ret;
     }
 
-    printf("Socket created in :%d\n", bindPort);
-    return 0;
-}
-
-int receiveUdp()
-{
-    unsigned char ff = 0xff;
-    int fromLen = sizeof(from);
-
-    nbytes = recvfrom(fd, buffer, sizeof(buffer), 0, (struct sockaddr*)&from, (socklen_t *)&fromLen);
-    if(nbytes <= 0)
+    if((ret = initWatch()) != SUCCESS)
     {
-        printf("%s\n", nbytes == 0 ? "received zero len" : "Error while receiving");
-        return -1;
+        printf("initWatch failed\n");
+        return ret;
     }
 
-    printf("=UDP=\n");
-    printf("received %d bytes:\n", nbytes);
-
-    char* p = buffer;
-    printf("  %02x %02x %02x %02x\n",       p[ 0]&ff, p[ 1]&ff, p[ 2]&ff, p[ 3]&ff);
-    printf("  %02x %02x %02x %02x\n",       p[ 4]&ff, p[ 5]&ff, p[ 6]&ff, p[ 7]&ff);
-    printf("  %02x %02x %02x %02x\n",       p[ 8]&ff, p[ 9]&ff, p[10]&ff, p[11]&ff);
-    printf("  %02x %02x %02x %02x\n",       p[12]&ff, p[13]&ff, p[14]&ff, p[15]&ff);
-    printf("  %02x %02x %02x %02x \n\n",    p[16]&ff, p[17]&ff, p[18]&ff, p[19]&ff);
-
-    return 0;
+    return ret;
 }

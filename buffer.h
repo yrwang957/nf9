@@ -19,7 +19,6 @@
 //return value
 #define SUCCESS      0
 #define FAILED      -1
-#define BUF_FULLED  -2
 
 typedef struct _B
 {
@@ -28,10 +27,10 @@ typedef struct _B
     int    id;
     int    length;
     int    type;
-    void*  p;
+    char*  p;
 }B;
 
 B bs[BUF_SIZE];
 
-void initBuffer();
-int enB(int, int, int, void*);
+int initBuf();
+int putBuf(int, int, int, void*);

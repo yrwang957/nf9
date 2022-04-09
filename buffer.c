@@ -5,23 +5,33 @@
 
 #include "buffer.h"
 
-void initBuffer()
+
+void _eraseBuf(B* b);
+
+int initBuf()
 {
     int i;
-    for(i = 0 ; i < BUF_SIZE ; ++i)
+    for(i = 0; i < BUF_SIZE; ++i)
     {
-        bs[i].using = false;
-        bs[i].time = 0;
-        bs[i].id = -1;
-        bs[i].length = 0;
-        bs[i].type = 0;
-        bs[i].p = NULL;
+        _eraseBuf(&bs[i]);
     }
+
+    return SUCCESS;
 }
 
-int enB(int type, int length, int id, void* p)
+void _eraseBuf(B* b)
 {
-    int ret = 0;
+    b->using  = false;
+    b->time   = 0;
+    b->id     = -1;
+    b->length = 0;
+    b->type   = 0;
+    b->p      = NULL;
+}
+
+int putBuf(int type, int length, int id, void* p)
+{
+    int ret = SUCCESS;
     int i = 0;
     int iU = 0; //idx of update
     int iN = 0; //idx of new
@@ -29,7 +39,7 @@ int enB(int type, int length, int id, void* p)
     for(iU = 0 ; iU < BUF_SIZE ; ++iU)
         if(bs[iU].id == id)
             break;
-
+    //TODO: no need if iU targeted
     for(iN = 0 ; iN < BUF_SIZE ; ++iN)
         if((bs[iN].id == -1) && (bs[iN].using == false))
             break;
@@ -58,7 +68,7 @@ int enB(int type, int length, int id, void* p)
     else
     {
         printf("Buffer is full\n");
-        ret = -1;
+        ret = FAILED;
     }
 
     return ret;
