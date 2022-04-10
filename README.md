@@ -1,2 +1,2 @@
-# nf9c
-NetFlow v9 Collector
+# nf9p
+NetFlow v9 Parser
