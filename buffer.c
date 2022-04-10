@@ -63,11 +63,11 @@ int putBuf(int type, int length, int id, void* p)
 
         bs[i].using = false;
 
-        printf("Use no.%03d buffer\n", i);
+        printf("      Use %03d buffer\n", i);
     }
     else
     {
-        printf("Buffer is full\n");
+        printf("      Buffer full\n");
         ret = FAILED;
     }
 

@@ -9,6 +9,7 @@
 #define FAILED  -1
 
 char sockBuf[65535];
+int nbytes;
 
 const int initSocket();
-const int receiveUdp();
+const int receive();

@@ -13,6 +13,7 @@ struct sockaddr_in _from;
 
 const int initSocket(int bindPort)
 {
+    nbytes = 0;
     memset(sockBuf, 0, sizeof(sockBuf));
 
     if((_fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
@@ -35,9 +36,8 @@ const int initSocket(int bindPort)
     return SUCCESS;
 }
 
-const int receiveUdp()
+const int receive()
 {
-    int nbytes;
     int _fromLen = sizeof(_from);
 
     nbytes = recvfrom(_fd, sockBuf, sizeof(sockBuf), 0, (struct sockaddr*)&_from, (socklen_t *)&_fromLen);
@@ -47,8 +47,9 @@ const int receiveUdp()
         return FAILED;
     }
 
-    printf("=UDP=\n");
-    printf("received %d bytes:\n", nbytes);
+    printf("==========================\n");
+    printf(" UDP received %5d bytes\n", nbytes);
+    printf("==========================\n");
 
     // char* p = sockBuf;
     // unsigned char ff = 0xff;
