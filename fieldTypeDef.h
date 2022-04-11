@@ -1,6 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+typedef struct _value_string
+{
+    int   value;
+    char* fieldType;
+}value_string;
+
+/* If you want sort of safely to send enterprise specific element IDs
+   using v9 you need to stake a claim in the wilds with the high bit
+   set.  Still no naming authority, but at least it will never collide
+   with valid IPFIX */
+#define NTOP_BASE 57472u                /* nprobe >= 5.5.6 */
+
 static const value_string v9_v10_template_types[] = {
     {   1, "BYTES" },
     {   2, "PKTS" },
@@ -420,5 +432,27 @@ static const value_string v9_v10_template_types[] = {
     { 197 + NTOP_BASE, "MYSQL_DB" },
     { 198 + NTOP_BASE, "MYSQL_QUERY" },
     { 199 + NTOP_BASE, "MYSQL_RESPONSE" },
+    { 0, NULL }
+};
+
+static const value_string v9_scope_field_types[] = {
+    { 1, "System" },
+    { 2, "Interface" },
+    { 3, "Line Card" },
+    { 4, "NetFlow Cache" },
+    { 5, "Template" },
+    { 0, NULL }
+};
+
+static const value_string v9_sampler_mode[] = {
+    { 0, "Deterministic" },
+    { 1, "Unknown" },  /* "Time-Based" ?? */
+    { 2, "Random" },
+    { 0, NULL }
+};
+
+static const value_string v9_direction[] = {
+    { 0, "Ingress" },
+    { 1, "Egress" },
     { 0, NULL }
 };

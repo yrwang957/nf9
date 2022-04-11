@@ -2,8 +2,7 @@
 #Customize
 .DS_Store
 .vscode
-nf9c
-nf9p
+nf9
 
 # Prerequisites
 *.d

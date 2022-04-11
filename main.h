@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/socket.h>
 
 //return value
 #define SUCCESS  0

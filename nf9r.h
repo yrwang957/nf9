@@ -22,17 +22,17 @@ typedef struct _FlowSetHeader
     uint16_t length;
 }FlowSetHeader;
 
-typedef struct _Field
-{
-    uint16_t type;
-    uint16_t length;
-}Field;
-
 typedef struct _TemplateFlowSet
 {
     uint16_t templateId;
     uint16_t fieldCount;
 }TemplateFlowSet;
+
+typedef struct _Data
+{
+    uint16_t flowSetId;
+    uint16_t length;
+}Data;
 
 typedef struct _OptionsTemplate
 {
@@ -41,11 +41,11 @@ typedef struct _OptionsTemplate
     uint16_t optionsLength;
 }OptionsTemplate;
 
-typedef struct _Data
+typedef struct _Field
 {
-    uint16_t flowSetId;
+    uint16_t type;
     uint16_t length;
-}Data;
+}Field;
 
 int templateFlowSet(FlowSetHeader*);
 int optionTemplate(FlowSetHeader*);

@@ -4,14 +4,14 @@
 #include <stdbool.h>
 #include <time.h>
 
-#define NEW_TEMPLATE 1000
-#define UPDATED      1001
-#define EXPIRED      1002
+#define NEW_TEMPLATE 0
+#define UPDATED      1
+#define EXPIRED      2
 
 //flowset types in buffer
-#define BUF_TMPLATE   2001
-#define BUF_OTEMPLATE 2002
-#define BUF_DATA      2003
+#define BUF_TMPLATE   1
+#define BUF_OTEMPLATE 2
+#define BUF_DATA      4
 
 //fixed buffer size
 #define BUF_SIZE     256

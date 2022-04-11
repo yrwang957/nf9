@@ -5,59 +5,71 @@
 #include <sys/types.h>
 #include <pthread.h>
 
-#include "nf9p.h"
+#include "main.h"
 #include "nf9r.h"
 #include "buffer.h"
 #include "socket.h"
 #include "watch.h"
+#include "fieldTypeDef.h"
 
 int main(int argc, char** argv)
 {
-    int i;
-    pthread_t tw;
-
-    printf("NFv9 parser start\n");
+    printf("NF9 start\n");
 
     init(argc, argv);
 
-    pthread_create(&tw, NULL, (void*)watch, NULL);
+    run();
 
+    pthread_join(tw, NULL);
+    pthread_join(tw, NULL);
+
+    printf("NF9 end\n");
+    return 0;
+}
+
+void run()
+{
+    //TODO:
+
+    //TODO: move to socket run
+    int i = 0;
     for(;;)
     {
+        int version = 0;
+        int count = 0;
+
         if(receive() != SUCCESS)
         {
             continue;
         }
 
         NF9Header* pH = (NF9Header*)sockBuf;
+        version = ntohs(pH->version);
+        count = ntohs(pH->count);
         printf("Header:\n");
-        printf("version      %u\n",   ntohs(pH->version));
-        printf("count        %u\n",   ntohs(pH->count));
+        printf("version      %u\n",   version);
+        printf("count        %u\n",   count);
         printf("systemUpTime %u\n",   ntohl(pH->systemUpTime));
         printf("unixSeconds  %u\n",   ntohl(pH->unixSeconds));
         printf("packetSeq    %u\n",   ntohl(pH->packetSeq));
         printf("SourceId     %u\n\n", ntohl(pH->SourceId));
 
-        if(((ntohs(pH->version)) != 9) || ((ntohs(pH->count)) >= 1024))
+        if(version != 9)
         {
-            printf("Drop due to version or count\n\n");
+            printf("Drop due to version\n\n");
             continue;
         }
 
-        // +-----------------+
-        // | Unpack FlowSet  |
-        // +-----------------+
+        // +----------------+
+        // | Unpack FlowSet |
+        // +----------------+
         int flowSetId = 0;
         int length = 0;
-        int accLength = sizeof(NF9Header);
-        FlowSetHeader* pFS = (FlowSetHeader*)(sockBuf + sizeof(NF9Header));
-        for(i = 0 ; i < ntohs(pH->count) ; ++i)
+        int pLength = 20;
+        char* p = sockBuf + sizeof(NF9Header);
+        for(i = 0; pLength < nbytes; ++i)
         {
-            if(accLength >= nbytes)
-            {
-                break;
-            }
-
+            FlowSetHeader* pFS = (FlowSetHeader*)p;
             flowSetId = ntohs(pFS->flowSetId);
             length = ntohs(pFS->length);
 
@@ -66,9 +78,9 @@ int main(int argc, char** argv)
 
             switch(flowSetId)
             {
-            // +-----------------+
-            // | Template sets   |
-            // +-----------------+
+            // +----------------------+
+            // | Template sets        |
+            // +----------------------+
             case TEMPLATE_FLOWSET:
                 templateFlowSet(pFS);
                 break;
@@ -80,27 +92,20 @@ int main(int argc, char** argv)
                 optionTemplate(pFS);
                 break;
 
-            // +-----------------+
-            // | Data sets       |
-            // +-----------------+
+            // +----------------------+
+            // | Data sets            |
+            // +----------------------+
             default:
                 data(pFS);
                 break;
             }
 
-            pFS = (FlowSetHeader*)((char*)pFS + length);
-            accLength += length;
+            pLength += length;
+            p += length;
         }
         printf("\n");
     }
-
-    pthread_join(tw, NULL);
-
-    printf("NFv9 parser end\n");
-    return 0;
 }
-
-
 
 int init(int argc, char** argv)
 {

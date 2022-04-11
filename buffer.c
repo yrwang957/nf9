@@ -37,16 +37,16 @@ int putBuf(int type, int length, int id, void* p)
     int iN = 0; //idx of new
 
     for(iU = 0 ; iU < BUF_SIZE ; ++iU)
-        if(bs[iU].id == id)
+        if(((type == BUF_TMPLATE) || (type == BUF_OTEMPLATE)) && bs[iU].id == id)
             break;
     //TODO: no need if iU targeted
     for(iN = 0 ; iN < BUF_SIZE ; ++iN)
-        if((bs[iN].id == -1) && (bs[iN].using == false))
+        if((type == BUF_DATA) && (bs[iN].id == -1) && (bs[iN].using == false))
             break;
 
     if((iU < BUF_SIZE) || (iN < BUF_SIZE))
     {
-        i = (iU < BUF_SIZE)? iU : iN;
+        i = (iU < BUF_SIZE) ? iU : iN;
 
         bs[i].using = true;
         bs[i].time = time(NULL);
@@ -57,6 +57,7 @@ int putBuf(int type, int length, int id, void* p)
         if(bs[i].p != NULL)
         {
             free(bs[i].p);
+            bs[i].p = NULL;
         }
         bs[i].p = (void*)malloc(length);
         memcpy(bs[i].p, p, length);
