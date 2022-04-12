@@ -17,10 +17,11 @@ void cleanOldBuf();
 
 bool _haveBufferContent();
 bool _haveJsonData();
+char* valueInStr(enum exp, int);
 
 int initWatch()
 {
-    //TODO:  move to run? bareful race condition?
+    //TODO:  move to run? bareful race condition
     pthread_create(&tw, NULL, (void*)watch, NULL);
 
     return SUCCESS;
@@ -48,7 +49,7 @@ void printBuf()
             {
                 int type = (*p << 8) | *(p + 1);
                 int leng = (*(p + 2) << 8) | *(p + 3);
-                printf("    %3d: type %d(%s), leng %d\n", it2, type, v9_v10_template_types[type - 1].fieldType , leng);
+                printf("    %3d: type %d(%s), leng %d\n", it2, type, v9_template_types[type - 1].fieldType , leng);
                 p += 4;
             }
             printf("\n");
@@ -97,7 +98,9 @@ void printBuf()
 void printJsonData()
 {
     int dataCounter = 0;
-    printf("Json:\n");
+    printf("--------\n");
+    printf("  Json\n");
+    printf("--------\n");
     printf("{");
 
     //find Data
@@ -117,7 +120,7 @@ void printJsonData()
                     ++dataCounter;
                     printf("\n    \"%d\" :\n    [", id);
 
-                    //a pair{Template, Data}, Data have one or more record
+                    //a pair{Template, Data}, Data have one or more flow
                     TemplateFlowSet* t = (TemplateFlowSet*)bs[j].p;
                     int fieldCount = ntohs(t->fieldCount);
 
@@ -127,7 +130,7 @@ void printJsonData()
                     //locate Data pointer
                     char* pd = bs[i].p + sizeof(Data);
 
-                    //each record in data
+                    //each flow in data
                     int pLength = 0;
                     int recordCounter = 0;
                     for(recordCounter = 0; ; ++recordCounter)
@@ -144,14 +147,17 @@ void printJsonData()
                             int tt = (*pt << 8) | *(pt + 1);
                             int tl = (*(pt + 2) << 8) | *(pt + 3);
                             printf("%s", fieldCounter ? "," : "");
-                            printf("\n            \"%s(%d|%d)\" : ", v9_v10_template_types[tt - 1].fieldType, tt, tl);
+                            printf("\n            \"%s\" : ", v9_template_types[tt].fieldType); //, tt, tl);
 
                             printf("\"");
+                            printf("%s", valueInStr(v9_template_types[tt].expression, tl));
+                            /* by hex
                             for(int k = 0; k < tl; ++k)
                             {
                                 printf("%c", k ? ' ' : '\0');
                                 printf("%02x", pd[k]&0xff);
                             }
+                            */
                             printf("\"");
 
                             pt += 4;
@@ -160,7 +166,7 @@ void printJsonData()
                         }
                         printf("\n        }");
 
-                        if(dLength - pLength < 4)
+                        if(dLength - pLength < 8) // 4 for DataSet header, and padding must < 4
                             break;
                     }
                     printf("\n    ]");
@@ -228,6 +234,12 @@ bool _haveBufferContent()
     return false;
 }
 
+char* valueInStr(enum exp expression, int length)
+{
+
+    return "todo";
+}
+
 void watch()
 {
     struct timeval tv;
@@ -240,7 +252,7 @@ void watch()
 
         if(_haveBufferContent())
         {
-            printBuf();
+//            printBuf();
         }
 
         if(_haveJsonData())
