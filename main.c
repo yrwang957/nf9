@@ -10,7 +10,6 @@
 #include "buffer.h"
 #include "socket.h"
 #include "watch.h"
-#include "fieldTypeDef.h"
 
 int main(int argc, char** argv)
 {

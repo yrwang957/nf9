@@ -9,7 +9,7 @@
 #define EXPIRED      2
 
 //flowset types in buffer
-#define BUF_TMPLATE   1
+#define BUF_TEMPLATE   1
 #define BUF_OTEMPLATE 2
 #define BUF_DATA      4
 

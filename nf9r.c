@@ -19,9 +19,7 @@ int templateFlowSet(FlowSetHeader* pFs)
 
     TemplateFlowSet* t = (TemplateFlowSet*)((char*)pFs + sizeof(FlowSetHeader));
 
-    // +----------+
-    // | Unpack t |
-    // +----------+
+    //Unpack t
     for(i = 0 ; ; ++i)
     {
         int templateId = ntohs(t->templateId);
@@ -33,7 +31,7 @@ int templateFlowSet(FlowSetHeader* pFs)
 
         printf("      %03d : tId %d, tLength %d, FieldCount %d\n", i, templateId, tLength, fieldCount);
 
-        if((ret = putBuf(BUF_TMPLATE, tLength, templateId, (void*)t)) != SUCCESS)
+        if((ret = putBuf(BUF_TEMPLATE, tLength, templateId, (void*)t)) != SUCCESS)
         {
             printf("    ret value %d\n", ret);
         }
@@ -65,9 +63,7 @@ int data(FlowSetHeader* pFs)
     printf("    Data:\n");
     printf("    flowSetId %d, Length %d, Padding %d\n", flowSetId, length, padding);
 
-    // +---------------------+
-    // | Data no need unpack |
-    // +---------------------+
+    //Data no need unpack, include paddding
     if((ret = putBuf(BUF_DATA, length, flowSetId, (void*)d)) != SUCCESS)
     {
         printf("    ret value %d\n", ret);
@@ -93,9 +89,7 @@ int optionTemplate(FlowSetHeader* pFs)
 
     OptionsTemplate* t = (OptionsTemplate*)(pFs + sizeof(FlowSetHeader));
 
-    // +-----------+
-    // | Unpack ot |
-    // +-----------+
+    //Unpack ot
     for(i = 0; ; ++i)
     {
         int templateId = ntohs(t->templateId);

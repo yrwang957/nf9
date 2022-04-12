@@ -9,6 +9,7 @@
 #include "watch.h"
 #include "buffer.h"
 #include "nf9r.h"
+#include "fieldTypeDef.h"
 
 int initWatch()
 {
@@ -30,7 +31,7 @@ void printBuf()
 
             printf("%03d: id %d, dur time %d, len %d, type %d\n", it, bs[it].id, (int)time(NULL) - (int)bs[it].time, bs[it].length, bs[it].type);
 
-            if(bs[it].type == BUF_TMPLATE)
+            if(bs[it].type == BUF_TEMPLATE)
             {
                 TemplateFlowSet* t = (TemplateFlowSet*)bs[it].p;
                 printf("  id %u, c %u\n", ntohs(t->templateId), ntohs(t->fieldCount));
@@ -41,7 +42,7 @@ void printBuf()
                 {
                     int type = (*p << 8) | *(p + 1);
                     int leng = (*(p + 2) << 8) | *(p + 3);
-                    printf("    %3d: type %3d, leng %3d\n", it2, type, leng);
+                    printf("    %3d: type %3d(%s), leng %3d\n", it2, type, v9_v10_template_types[type].fieldType , leng);
                     p += 4;
                 }
                 printf("\n");

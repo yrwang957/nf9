@@ -33,21 +33,30 @@ int putBuf(int type, int length, int id, void* p)
 {
     int ret = SUCCESS;
     int i = 0;
-    int iU = 0; //idx of update
-    int iN = 0; //idx of new
 
-    for(iU = 0 ; iU < BUF_SIZE ; ++iU)
-        if(((type == BUF_TMPLATE) || (type == BUF_OTEMPLATE)) && bs[iU].id == id)
-            break;
-    //TODO: no need if iU targeted
-    for(iN = 0 ; iN < BUF_SIZE ; ++iN)
-        if((type == BUF_DATA) && (bs[iN].id == -1) && (bs[iN].using == false))
-            break;
-
-    if((iU < BUF_SIZE) || (iN < BUF_SIZE))
+    //TODO: too complex
+    if(type == BUF_DATA)
     {
-        i = (iU < BUF_SIZE) ? iU : iN;
+        for(i = 0; i < BUF_SIZE; ++i)
+            if( (bs[i].id == -1) && (bs[i].using == false) )
+                break;
+    }
+    else
+    {
+        for(i = 0; i < BUF_SIZE; ++i)
+            if((bs[i].id == id) && (bs[i].using == false) && bs[i].type == type)
+                break;
 
+        if(i == BUF_SIZE)
+        {
+            for(i = 0; i < BUF_SIZE; ++i)
+                if( (bs[i].id == -1) && (bs[i].using == false) )
+                    break;
+        }
+    }
+
+    if(i != BUF_SIZE)
+    {
         bs[i].using = true;
         bs[i].time = time(NULL);
         bs[i].id = id;
