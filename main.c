@@ -28,8 +28,6 @@ int main(int argc, char** argv)
 
 void run()
 {
-    //TODO:
-
     //TODO: move to socket run
     int i = 0;
     for(;;)

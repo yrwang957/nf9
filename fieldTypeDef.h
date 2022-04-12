@@ -7,6 +7,8 @@ typedef struct _value_string
     char* fieldType;
 }value_string;
 
+//TODO: use function query, not fixed
+
 /* If you want sort of safely to send enterprise specific element IDs
    using v9 you need to stake a claim in the wilds with the high bit
    set.  Still no naming authority, but at least it will never collide

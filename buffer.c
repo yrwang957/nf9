@@ -5,28 +5,29 @@
 
 #include "buffer.h"
 
-
-void _eraseBuf(B* b);
-
 int initBuf()
 {
     int i;
     for(i = 0; i < BUF_SIZE; ++i)
     {
-        _eraseBuf(&bs[i]);
+        eraseBuf(&bs[i]);
     }
 
     return SUCCESS;
 }
 
-void _eraseBuf(B* b)
+void eraseBuf(B* b)
 {
     b->using  = false;
     b->time   = 0;
     b->id     = -1;
     b->length = 0;
     b->type   = 0;
-    b->p      = NULL;
+    if(b->p != NULL)
+    {
+        free(b->p);
+        b->p = NULL;
+    }
 }
 
 int putBuf(int type, int length, int id, void* p)

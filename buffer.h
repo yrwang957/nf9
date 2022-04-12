@@ -33,4 +33,5 @@ typedef struct _B
 B bs[BUF_SIZE];
 
 int initBuf();
+void eraseBuf(B*);
 int putBuf(int, int, int, void*);

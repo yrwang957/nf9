@@ -26,8 +26,8 @@ int templateFlowSet(FlowSetHeader* pFs)
         int fieldCount = ntohs(t->fieldCount);
         int tLength = 4 + (fieldCount << 2);
 
-//        if(templateId == 0)
-//            continue;
+        if(templateId == 0)
+            continue;
 
         printf("      %03d : tId %d, tLength %d, FieldCount %d\n", i, templateId, tLength, fieldCount);
 
