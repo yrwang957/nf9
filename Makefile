@@ -1,6 +1,6 @@
 
 CC = gcc
-CFLAGS = -pthread -std=gnu11 -Wall -DINFO
+CFLAGS = -std=gnu11 -Wall -DINFO
 INC =
 LIB =
 

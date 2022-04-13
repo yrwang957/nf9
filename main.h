@@ -4,4 +4,4 @@
 int init(int, char**);
 void run();
 
-#endif
+#endif /* MAIN_H */

@@ -3,7 +3,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/types.h>
-#include <pthread.h>
 
 #include "main.h"
 #include "def.h"
@@ -14,21 +13,19 @@
 
 int main(int argc, char** argv)
 {
-    printf("NF9 start\n");
+    printf("[INFO] NF9 start\n");
 
     init(argc, argv);
 
     run();
 
-    printf("NF9 end\n");
+    printf("[INFO] NF9 end\n");
     return 0;
 }
 
 void run()
 {
-    int i = 0;
-
-    for(;;)
+    do
     {
         // +---------------------+
         // | Receive from socket |
@@ -58,42 +55,48 @@ void run()
         // +----------------+
         // | Unpack FlowSet |
         // +----------------+
-        int flowSetId = 0;
-        int length = 0;
-        int pLength = 20;
-        uint8_t* p = sock_buf + sizeof(NF9Header);
-        for(i = 0; pLength < bytes; ++i)
-        {
-            FlowSetHeader* pFS = (FlowSetHeader*)p;
-            flowSetId = ntohs(pFS->flowSetId);
-            length = ntohs(pFS->length);
+        uint16_t flowSetId = 0;
+        uint16_t length = 0;
+        int returned_count = 0;
+        int processed_count = 0;
+        int processed_byte = sizeof(NF9Header);
+        uint8_t* ptr_buf = sock_buf + sizeof(NF9Header);
 
-            printf("  %03d FlowSet:\n", i);
-            printf("  id %d, len %d\n\n", flowSetId, length);
+        // foreach FlowSet
+        while((bytes - processed_byte >= 4) && (count > processed_byte))
+        {
+            FlowSetHeader* pHeader = (FlowSetHeader*)ptr_buf;
+            flowSetId = ntohs(pHeader->flowSetId);
+            length = ntohs(pHeader->length);
+
+            printf("  id %hu, len %hu\n\n", flowSetId, length);
 
             switch(flowSetId)
             {
             // Template sets
             case TEMPLATE_FLOWSET:
-                templateFlowSet(pFS);
+                returned_count = templateFlowSet(pHeader);
                 break;
 
             // Option Template sets
             case OPTION_TEMPLATE:
-                optionTemplate(pFS);
+               // ignore for now
+                // returned_count = optionTemplate(pHeader);
                 break;
 
             // Data sets
             default:
-                data(pFS);
+                returned_count = data(pHeader);
                 break;
             }
 
-            pLength += length;
-            p += length;
+            processed_count += returned_count; // accumulate count(reference to v9 header)
+            processed_byte += (int)length; // accumulate processed byte(reference to udp received)
+            ptr_buf += (uint8_t)length; // forward pointer to next FlowSet
         }
         printf("\n");
     }
+    while(true);
 }
 
 int init(int argc, char** argv)
