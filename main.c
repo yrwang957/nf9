@@ -27,19 +27,20 @@ int main(int argc, char** argv)
 void run()
 {
     int i = 0;
-    uint16_t version = 0;
-    uint16_t count = 0;
 
     for(;;)
     {
+        // +---------------------+
+        // | Receive from socket |
+        // +---------------------+
         if(receive() != SUCCESS)
         {
             continue;
         }
 
         NF9Header* pH = (NF9Header*)sock_buf;
-        version = ntohs(pH->version);
-        count = ntohs(pH->count);
+        uint16_t version = ntohs(pH->version);
+        uint16_t count = ntohs(pH->count);
         printf("Header:\n");
         printf("version      %hu\n",  version);
         printf("count        %hu\n",  count);
@@ -50,7 +51,7 @@ void run()
 
         if(version != 9)
         {
-            printf("Drop due to version\n\n");
+            printf("[WARN] Drop due to version %hu\n", version);
             continue;
         }
 
@@ -72,23 +73,17 @@ void run()
 
             switch(flowSetId)
             {
-            // +----------------------+
-            // | Template sets        |
-            // +----------------------+
+            // Template sets
             case TEMPLATE_FLOWSET:
                 templateFlowSet(pFS);
                 break;
 
-            // +----------------------+
-            // | Option Template sets |
-            // +----------------------+
+            // Option Template sets
             case OPTION_TEMPLATE:
                 optionTemplate(pFS);
                 break;
 
-            // +----------------------+
-            // | Data sets            |
-            // +----------------------+
+            // Data sets
             default:
                 data(pFS);
                 break;

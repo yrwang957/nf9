@@ -10,7 +10,6 @@
 #include "watch.h"
 #include "buffer.h"
 #include "nf9r.h"
-#include "fieldTypeDef.h"
 #include "def.h"
 
 void printBuf();
