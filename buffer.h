@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <time.h>
 
-#define NEW_TEMPLATE 0
+#define NEW_TEMPLATE (0)
 #define UPDATED      1
 #define EXPIRED      2
 

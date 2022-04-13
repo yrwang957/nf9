@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <sys/select.h>
 #include <time.h>
 #include <string.h>
@@ -15,9 +16,9 @@ void printBuf();
 void printDataJson();
 void cleanOldBuf();
 
-bool _haveBufferContent();
-bool _haveJsonData();
-char* valueInStr(enum exp, int);
+bool haveBufferContent();
+bool haveJsonData();
+char* valueInStr(enum Expression, char*, int);
 
 int initWatch()
 {
@@ -149,16 +150,16 @@ void printJsonData()
                             printf("%s", fieldCounter ? "," : "");
                             printf("\n            \"%s\" : ", v9_template_types[tt].fieldType); //, tt, tl);
 
-                            printf("\"");
-                            printf("%s", valueInStr(v9_template_types[tt].expression, tl));
+                            printf("%s", valueInStr(v9_template_types[tt].exp, pd, tl));
                             /* by hex
+                            printf("\"");
                             for(int k = 0; k < tl; ++k)
                             {
                                 printf("%c", k ? ' ' : '\0');
                                 printf("%02x", pd[k]&0xff);
                             }
-                            */
                             printf("\"");
+                            */
 
                             pt += 4;
                             pd += tl;
@@ -198,7 +199,7 @@ void cleanOldBuf()
     }
 }
 
-bool _haveJsonData()
+bool haveJsonData()
 {
     int i = 0;
     for(i = 0; i < BUF_SIZE; ++i)
@@ -220,7 +221,7 @@ bool _haveJsonData()
     return false;
 }
 
-bool _haveBufferContent()
+bool haveBufferContent()
 {
     int i = 0;
     for(i = 0; i < BUF_SIZE; ++i)
@@ -234,10 +235,54 @@ bool _haveBufferContent()
     return false;
 }
 
-char* valueInStr(enum exp expression, int length)
+// enum Expression
+// {
+//     UINT,
+//     STR,
+//     V4ADDR,
+//     V6ADDR,
+//     OTHERS,
+//     UNDEFINE
+// };
+char* valueInStr(enum Expression exp, char* pd, int l)
 {
+    static char v[128] = "";
+    static int i = 0;
 
-    return "todo";
+    switch(exp)
+    {
+    case UINT:
+        ;
+        uint64_t u64 = 0;
+        for(i = l - 1; i >= 0; --i)
+        {
+            u64 = (u64 << 8) | pd[i];
+        }
+        snprintf(v, sizeof(v), "%lu", u64);
+        break;
+
+    case STR:
+        ;
+        v[0] = '\"';
+        for(i = 0; i < l; ++i)
+        {
+            v[i + 1] = pd[i];
+        }
+        v[i + 1] = '\"';
+        v[i + 2] = '\0';
+        break;
+
+    case V4ADDR:
+        ;
+        snprintf(v, sizeof(v), "\"%u.%u.%u.%u\"", pd[0], pd[1], pd[2], pd[3]);
+        break;
+
+    default:
+        snprintf(v, sizeof(v), "null");
+        break;
+    }
+
+    return v;
 }
 
 void watch()
@@ -250,12 +295,12 @@ void watch()
         tv.tv_usec = 0; //1000000 = 1sec
         select(0, NULL, NULL, NULL, &tv);
 
-        if(_haveBufferContent())
+        if(haveBufferContent())
         {
 //            printBuf();
         }
 
-        if(_haveJsonData())
+        if(haveJsonData())
         {
             printJsonData();
         }

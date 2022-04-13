@@ -1,12 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-enum exp
+enum Expression
 {
-    UINT8,
-    UINT16,
-    UINT32,
-    UINT64,
+    UINT,
     STR,
     V4ADDR,
     V6ADDR,
@@ -16,7 +13,7 @@ enum exp
 
 typedef struct _value_string3
 {
-    enum exp expression;
+    enum Expression exp;
     int value;
     char* fieldType;
 }value_string3;
@@ -38,18 +35,18 @@ typedef struct _value_string2
 
 static const value_string3 v9_template_types[] = {
     { UNDEFINE,   0, "NULL" },
-    { UNDEFINE,   1, "BYTES" },
-    { UNDEFINE,   2, "PKTS" },
-    { UNDEFINE,   3, "FLOWS" },
-    { UNDEFINE,   4, "PROTOCOL" },
+    { UINT,   1, "BYTES" },
+    { UINT,   2, "PKTS" },
+    { UINT,   3, "FLOWS" },
+    { UINT,   4, "PROTOCOL" },
     { UNDEFINE,   5, "IP_TOS" },
     { UNDEFINE,   6, "TCP_FLAGS" },
-    { UNDEFINE,   7, "L4_SRC_PORT" },
-    { UNDEFINE,   8, "IP_SRC_ADDR" },
-    { UNDEFINE,   9, "SRC_MASK" },
+    { UINT,   7, "L4_SRC_PORT" },
+    { V4ADDR,   8, "IP_SRC_ADDR" },
+    { UINT,   9, "SRC_MASK" },
     { UNDEFINE,  10, "INPUT_SNMP" },
-    { UNDEFINE,  11, "L4_DST_PORT" },
-    { UNDEFINE,  12, "IP_DST_ADDR" },
+    { UINT,  11, "L4_DST_PORT" },
+    { V4ADDR,  12, "IP_DST_ADDR" },
     { UNDEFINE,  13, "DST_MASK" },
     { UNDEFINE,  14, "OUTPUT_SNMP" },
     { UNDEFINE,  15, "IP_NEXT_HOP" },
