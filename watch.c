@@ -11,6 +11,7 @@
 #include "buffer.h"
 #include "nf9r.h"
 #include "fieldTypeDef.h"
+#include "def.h"
 
 void printBuf();
 void printDataJson();
@@ -23,7 +24,7 @@ char* valueInStr(enum Expression, char*, int);
 int initWatch()
 {
     //TODO:  move to run? bareful race condition
-    pthread_create(&tw, NULL, (void*)watch, NULL);
+    // pthread_create(&tw, NULL, (void*)watch, NULL);
 
     return SUCCESS;
 }

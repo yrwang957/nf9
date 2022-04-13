@@ -7,14 +7,15 @@
 #include <netinet/in.h>
 
 #include "socket.h"
-
+#include "def.h"
+n
 int _fd;
 struct sockaddr_in _from;
 
-const int initSocket(int bindPort)
+const int init_socket(int bindPort)
 {
-    nbytes = 0;
-    memset(sockBuf, 0, sizeof(sockBuf));
+    bytes = 0;
+    memset(sock_buf, 0, sizeof(sock_buf));
 
     if((_fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
     {
@@ -40,18 +41,18 @@ const int receive()
 {
     int _fromLen = sizeof(_from);
 
-    nbytes = recvfrom(_fd, sockBuf, sizeof(sockBuf), 0, (struct sockaddr*)&_from, (socklen_t *)&_fromLen);
-    if(nbytes <= 0)
+    bytes = recvfrom(_fd, sock_buf, sizeof(sock_buf), 0, (struct sockaddr*)&_from, (socklen_t *)&_fromLen);
+    if(bytes <= 0)
     {
-        printf("%s\n", nbytes == 0 ? "received zero len" : "Error while receiving");
+        printf("%s\n", bytes == 0 ? "received zero len" : "Error while receiving");
         return FAILED;
     }
 
     printf("----------------------------\n");
-    printf("  UDP received %5d bytes\n", nbytes);
+    printf("  UDP received %5d bytes\n", bytes);
     printf("----------------------------\n");
 
-    // char* p = sockBuf;
+    // char* p = sock_buf;
     // unsigned char ff = 0xff;
     // printf("  %02x %02x %02x %02x\n",   p[ 0]&ff, p[ 1]&ff, p[ 2]&ff, p[ 3]&ff);
     // printf("  %02x %02x %02x %02x\n",   p[ 4]&ff, p[ 5]&ff, p[ 6]&ff, p[ 7]&ff);

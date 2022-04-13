@@ -1,9 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
-
-//return value
-#define SUCCESS  0
-#define FAILED  -1
+#ifndef MAIN_H
+#define MAIN_H
 
 int init(int, char**);
 void run();
+
+#endif

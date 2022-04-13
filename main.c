@@ -6,9 +6,10 @@
 #include <pthread.h>
 
 #include "main.h"
+#include "def.h"
 #include "nf9r.h"
 #include "buffer.h"
-#include "socket.h"
+#include "udp.h"
 #include "watch.h"
 
 int main(int argc, char** argv)
@@ -19,33 +20,29 @@ int main(int argc, char** argv)
 
     run();
 
-    pthread_join(tw, NULL);
-    pthread_join(tw, NULL);
-
     printf("NF9 end\n");
     return 0;
 }
 
 void run()
 {
-    //TODO: move to socket run
     int i = 0;
+    uint16_t version = 0;
+    uint16_t count = 0;
+
     for(;;)
     {
-        int version = 0;
-        int count = 0;
-
         if(receive() != SUCCESS)
         {
             continue;
         }
 
-        NF9Header* pH = (NF9Header*)sockBuf;
+        NF9Header* pH = (NF9Header*)sock_buf;
         version = ntohs(pH->version);
         count = ntohs(pH->count);
         printf("Header:\n");
-        printf("version      %u\n",   version);
-        printf("count        %u\n",   count);
+        printf("version      %hu\n",  version);
+        printf("count        %hu\n",  count);
         printf("systemUpTime %u\n",   ntohl(pH->systemUpTime));
         printf("unixSeconds  %u\n",   ntohl(pH->unixSeconds));
         printf("packetSeq    %u\n",   ntohl(pH->packetSeq));
@@ -63,8 +60,8 @@ void run()
         int flowSetId = 0;
         int length = 0;
         int pLength = 20;
-        char* p = sockBuf + sizeof(NF9Header);
-        for(i = 0; pLength < nbytes; ++i)
+        uint8_t* p = sock_buf + sizeof(NF9Header);
+        for(i = 0; pLength < bytes; ++i)
         {
             FlowSetHeader* pFS = (FlowSetHeader*)p;
             flowSetId = ntohs(pFS->flowSetId);
@@ -107,25 +104,27 @@ void run()
 int init(int argc, char** argv)
 {
     int ret = SUCCESS;
-    int bindPort = (argc >= 2) ? atoi(argv[1]) : BINDING_PORT;
 
+    int bindPort = (argc >= 2) ? atoi(argv[1]) : DEFAULT_BINDING_PORT;
+    if((ret = init_socket(bindPort)) != SUCCESS)
+    {
+        printf("[ ERR]init_socket() failed\n");
+        return ret;
+    }
+/*
     if((ret = initBuf()) != SUCCESS)
     {
-        printf("initsockBuf failed\n");
+        printf("initsock_buf failed\n");
         return ret;
     }
 
-    if((ret = initSocket(bindPort)) != SUCCESS)
-    {
-        printf("initSocket failed\n");
-        return ret;
-    }
 
     if((ret = initWatch()) != SUCCESS)
     {
         printf("initWatch failed\n");
         return ret;
     }
+    */
 
     return ret;
 }

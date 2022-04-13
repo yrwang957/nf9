@@ -3,6 +3,7 @@
 #include <time.h>
 #include <string.h>
 
+#include "def.h"
 #include "buffer.h"
 
 int initBuf()
