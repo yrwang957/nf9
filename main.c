@@ -41,10 +41,10 @@ void run()
         printf("Header:\n");
         printf("version      %hu\n",  version);
         printf("count        %hu\n",  count);
-        printf("systemUpTime %u\n",   ntohl(pH->systemUpTime));
-        printf("unixSeconds  %u\n",   ntohl(pH->unixSeconds));
-        printf("packetSeq    %u\n",   ntohl(pH->packetSeq));
-        printf("SourceId     %u\n\n", ntohl(pH->SourceId));
+        // printf("systemUpTime %u\n",   ntohl(pH->systemUpTime));
+        // printf("unixSeconds  %u\n",   ntohl(pH->unixSeconds));
+        // printf("packetSeq    %u\n",   ntohl(pH->packetSeq));
+        // printf("SourceId     %u\n\n", ntohl(pH->SourceId));
 
         if(version != 9)
         {
@@ -63,7 +63,7 @@ void run()
         uint8_t* ptr_buf = sock_buf + sizeof(NF9Header);
 
         // foreach FlowSet
-        while((bytes - processed_byte >= 4) && (count > processed_byte))
+        while((bytes - processed_byte >= 4) && (count > processed_count))
         {
             FlowSetHeader* pHeader = (FlowSetHeader*)ptr_buf;
             flowSetId = ntohs(pHeader->flowSetId);
@@ -93,6 +93,7 @@ void run()
             processed_count += returned_count; // accumulate count(reference to v9 header)
             processed_byte += (int)length; // accumulate processed byte(reference to udp received)
             ptr_buf += (uint8_t)length; // forward pointer to next FlowSet
+            printf("processed count:%d/%d\n", processed_count, count);
         }
         printf("\n");
     }

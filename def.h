@@ -1,6 +1,8 @@
 #ifndef DEF_H
 #define DEF_H
 
+#include <stdio.h>
+
 // TODO: macro debug message
 
 // return value
@@ -483,4 +485,4 @@ static const value_string2 v9_direction[] = {
     { 0, NULL }
 };
 
-#endif
+#endif /* DEF_H */

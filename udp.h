@@ -9,4 +9,4 @@ int bytes;
 int init_socket(int bind_port);
 int receive();
 
-#endif
+#endif /* UDP_H */

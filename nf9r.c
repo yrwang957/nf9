@@ -11,7 +11,7 @@
 int templateFlowSet(FlowSetHeader* pFs)
 {
     int i = 0;
-    int ret = 0;
+    // int ret = 0;
     int length = ntohs(pFs->length);
     int pLength = 4;
 
@@ -32,11 +32,11 @@ int templateFlowSet(FlowSetHeader* pFs)
 
         printf("      %03d : tId %d, tLength %d, FieldCount %d\n", i, templateId, tLength, fieldCount);
 
-        if((ret = putBuf(BUF_TEMPLATE, tLength, templateId, (void*)t)) != SUCCESS)
-        {
-            printf("    ret value %d\n", ret);
-        }
-        printf("\n");
+        // if((ret = putBuf(BUF_TEMPLATE, tLength, templateId, (void*)t)) != SUCCESS)
+        // {
+        //     printf("    ret value %d\n", ret);
+        // }
+        // printf("\n");
 
         t = (TemplateFlowSet*)((char*)t + tLength);
         pLength += tLength;
@@ -55,7 +55,7 @@ int templateFlowSet(FlowSetHeader* pFs)
 // +-----------------+
 int data(FlowSetHeader* pFs)
 {
-    int ret = 0;
+    // int ret = 0;
     Data* d = (Data*)pFs;
     int flowSetId = ntohs(d->flowSetId);
     int length = ntohs(d->length);
@@ -65,11 +65,11 @@ int data(FlowSetHeader* pFs)
     printf("    flowSetId %d, Length %d, Padding %d\n", flowSetId, length, padding);
 
     //Data no need unpack, include paddding
-    if((ret = putBuf(BUF_DATA, length, flowSetId, (void*)d)) != SUCCESS)
-    {
-        printf("    ret value %d\n", ret);
-    }
-    printf("\n");
+    // if((ret = putBuf(BUF_DATA, length, flowSetId, (void*)d)) != SUCCESS)
+    // {
+    //     printf("    ret value %d\n", ret);
+    // }
+    // printf("\n");
 
     return 0;
 }
@@ -79,8 +79,13 @@ int data(FlowSetHeader* pFs)
 // +----------------------+
 int optionTemplate(FlowSetHeader* pFs)
 {
+    // don't care for now, only record templ_id
+
+    return 1;
+
+    /*
     int i = 0;
-    int ret = 0;
+    // int ret = 0;
     int length = ntohs(pFs->length);
     int pLength = 4;
     int padding= (length - 4) & 0x03;
@@ -100,11 +105,11 @@ int optionTemplate(FlowSetHeader* pFs)
 
         printf("      %03d : tId %d, oLength %d, counts %d|%d\n", i, templateId, optionsLength, scopeLength >> 2, optionsLength >> 2);
 
-        if((ret = putBuf(BUF_OTEMPLATE, optionsLength, templateId, (void*)t)) != SUCCESS)
-        {
-            printf("    ret value %d\n", ret);
-        }
-        printf("\n");
+        // if((ret = putBuf(BUF_OTEMPLATE, optionsLength, templateId, (void*)t)) != SUCCESS)
+        // {
+        //     printf("    ret value %d\n", ret);
+        // }
+        // printf("\n");
 
         t = (OptionsTemplate*)((char*)t + otLength);
         pLength += otLength;
@@ -114,6 +119,7 @@ int optionTemplate(FlowSetHeader* pFs)
         }
     }
     printf("\n");
+    */
 
     return 0;
 }
