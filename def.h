@@ -6,8 +6,8 @@
 // TODO: macro debug message
 
 // return value
-#define SUCCESS (0)
-#define FAILED  (-1)
+#define SUCCESS (1)
+#define FAILED  (0)
 
 enum Expression
 {
@@ -16,7 +16,8 @@ enum Expression
     V4ADDR,
     V6ADDR,
     OTHERS,
-    UNDEFINE
+    UNDEFINE,
+    UNKNOWN
 };
 
 typedef struct
@@ -41,7 +42,7 @@ typedef struct
 //TODO: use function query, not fixed
 
 static const value_string3 v9_template_types[] = {
-    { UNDEFINE,   0, "NULL" },
+    { UNKNOWN,    0, "UNKNOWN" },
     { UINT,       1, "BYTES" },
     { UINT,       2, "PKTS" },
     { UINT,       3, "FLOWS" },

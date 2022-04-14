@@ -1,7 +1,7 @@
 #ifndef BUF_LIST_H
 #define BUF_LIST_H
 
-#define BUF_SIZE 2048
+#define BUF_SIZE (2048)
 
 void buf_destroy();
 void buf_add();

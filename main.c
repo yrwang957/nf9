@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <string.h>
 #include <sys/types.h>
@@ -7,9 +8,7 @@
 #include "main.h"
 #include "def.h"
 #include "nf9r.h"
-#include "buffer.h"
 #include "udp.h"
-#include "watch.h"
 
 int main(int argc, char** argv)
 {
@@ -25,7 +24,7 @@ int main(int argc, char** argv)
 
 void run()
 {
-    do
+    while(true)
     {
         // +---------------------+
         // | Receive from socket |
@@ -97,7 +96,6 @@ void run()
         }
         printf("\n");
     }
-    while(true);
 }
 
 int init(int argc, char** argv)

@@ -19,8 +19,8 @@ struct Templ_cell_s
 Templ_cell_t** templ_table;
 
 int init_templ_table();
-int templ_recv(uint32_t src_ip, uint16_t templ_id, uint8_t* ptr_data, int len);
+int templ_recv(uint32_t src_ip, uint16_t templ_id, uint8_t* ptr_data, uint16_t len);
 Templ_cell_t* templ_lookup(uint32_t src_ip, uint16_t templ_id);
-void templ_destory();
+void templ_destruct();
 
 #endif /* TEMPL_TBL_H */
