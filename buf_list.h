@@ -7,4 +7,4 @@ void buf_destroy();
 void buf_add();
 void bif_lookup();
 
-#endif /* BUF_LIST_H */
+#endif // BUF_LIST_H

@@ -3,12 +3,15 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <string.h>
+#include <time.h>
 #include <sys/types.h>
 
 #include "main.h"
 #include "def.h"
 #include "nf9r.h"
 #include "udp.h"
+
+void showPacketHeader(NF9Header* pH);
 
 int main(int argc, char** argv)
 {
@@ -19,6 +22,7 @@ int main(int argc, char** argv)
     run();
 
     printf("[INFO] NF9 end\n");
+
     return 0;
 }
 
@@ -37,13 +41,8 @@ void run()
         NF9Header* pH = (NF9Header*)sock_buf;
         uint16_t version = ntohs(pH->version);
         uint16_t count = ntohs(pH->count);
-        printf("Header:\n");
-        printf("version      %hu\n",  version);
-        printf("count        %hu\n",  count);
-        // printf("systemUpTime %u\n",   ntohl(pH->systemUpTime));
-        // printf("unixSeconds  %u\n",   ntohl(pH->unixSeconds));
-        // printf("packetSeq    %u\n",   ntohl(pH->packetSeq));
-        // printf("SourceId     %u\n\n", ntohl(pH->SourceId));
+
+        showPacketHeader(pH);
 
         if(version != 9)
         {
@@ -95,7 +94,7 @@ void run()
             printf("processed count:%d/%d\n", processed_count, count);
         }
         printf("\n");
-    }
+    } // while loop
 }
 
 int init(int argc, char** argv)
@@ -121,7 +120,38 @@ int init(int argc, char** argv)
         printf("initWatch failed\n");
         return ret;
     }
-    */
+*/
 
     return ret;
+}
+
+void showPacketHeader(NF9Header* pH)
+{
+    uint16_t version = ntohs(pH->version);
+    uint16_t count = ntohs(pH->count);
+    uint32_t sysUptime = ntohl(pH->systemUpTime);
+    uint32_t unixSec = (time_t)ntohl(pH->unixSeconds);
+    uint32_t packetSeq = ntohl(pH->packetSeq);
+    uint32_t sourceId = ntohl(pH->sourceId);
+
+    time_t unixSec_timet = (time_t)unixSec;
+    struct tm* unixSec_tm = localtime( &unixSec_timet );
+
+    printf("+--------------+\n");
+    printf("| Header       |\n");
+    printf("+--------------+\n");
+    printf("| version      | %hu\n",  version);
+    printf("| count        | %hu\n",  count);
+    printf("| systemUpTime | %u\n",   sysUptime);
+    printf("| unixSeconds  | %hu (%4d-%02d-%02d %02d:%02d:%02d)\n",
+        unixSec,
+        unixSec_tm->tm_year + 1900,
+        unixSec_tm->tm_mon + 1,
+        unixSec_tm->tm_mday,
+        unixSec_tm->tm_hour,
+        unixSec_tm->tm_min,
+        unixSec_tm->tm_sec);
+    printf("| packetSeq    | %u\n",   packetSeq);
+    printf("| SourceId     | %u\n", sourceId);
+    printf("+--------------+\n\n");
 }

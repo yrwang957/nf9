@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "templ_tbl.h"
+#include "def.h"
 
 int init_templ_table()
 {

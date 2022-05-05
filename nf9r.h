@@ -1,3 +1,6 @@
+#ifndef NF9R_H
+#define NF9R_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
@@ -13,7 +16,7 @@ typedef struct _NF9Header
     uint32_t systemUpTime;
     uint32_t unixSeconds;
     uint32_t packetSeq;
-    uint32_t SourceId;
+    uint32_t sourceId;
 }NF9Header;
 
 typedef struct _FlowSetHeader
@@ -50,3 +53,5 @@ typedef struct _Field
 int templateFlowSet(FlowSetHeader*);
 int optionTemplate(FlowSetHeader*);
 int data(FlowSetHeader*);
+
+#endif // NF9R_H

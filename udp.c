@@ -7,6 +7,9 @@
 #include "udp.h"
 #include "def.h"
 
+uint8_t sock_buf[65535];
+int bytes;
+
 static int fd;
 static struct sockaddr_in from;
 

@@ -2,7 +2,6 @@
 #define TEMPL_TBL_H
 
 #include <stdint.h>
-#include "def.h"
 
 #define TBL_SIZE (65535)
 
@@ -23,4 +22,4 @@ int templ_recv(uint32_t src_ip, uint16_t templ_id, uint8_t* ptr_data, uint16_t l
 Templ_cell_t* templ_lookup(uint32_t src_ip, uint16_t templ_id);
 void templ_destruct();
 
-#endif /* TEMPL_TBL_H */
+#endif // TEMPL_TBL_H
