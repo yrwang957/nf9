@@ -1,2 +1,2 @@
 # nf9
-NetFlow v9
+nf9
