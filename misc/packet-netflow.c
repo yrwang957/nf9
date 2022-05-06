@@ -185,12 +185,12 @@ static range_t *global_ipfix_ports = NULL;
 #define FLOWSET_ID_DATA_MAX             65535
 
 static const range_string rs_flowset_ids[] = {
-    { FLOWSET_ID_V9_DATA_TEMPLATE    , FLOWSET_ID_V9_DATA_TEMPLATE    , "Data Template (V9)"             },
+    { FLOWSET_ID_V9_DATA_TEMPLATE    , FLOWSET_ID_V9_DATA_TEMPLATE    , "Data_header Template (V9)"             },
     { FLOWSET_ID_V9_OPTIONS_TEMPLATE , FLOWSET_ID_V9_OPTIONS_TEMPLATE , "Options Template(V9)"           },
-    { FLOWSET_ID_V10_DATA_TEMPLATE   , FLOWSET_ID_V10_DATA_TEMPLATE   , "Data Template (V10 [IPFIX])"    },
+    { FLOWSET_ID_V10_DATA_TEMPLATE   , FLOWSET_ID_V10_DATA_TEMPLATE   , "Data_header Template (V10 [IPFIX])"    },
     { FLOWSET_ID_V10_OPTIONS_TEMPLATE, FLOWSET_ID_V10_OPTIONS_TEMPLATE, "Options Template (V10 [IPFIX])" },
     { FLOWSET_ID_RESERVED_MIN        , FLOWSET_ID_RESERVED_MAX        , "(Reserved)"                     },
-    { FLOWSET_ID_DATA_MIN            , FLOWSET_ID_DATA_MAX            , "(Data)"                         },
+    { FLOWSET_ID_DATA_MIN            , FLOWSET_ID_DATA_MAX            , "(Data_header)"                         },
     { 0,           0,          NULL                   }
 };
 
@@ -2349,7 +2349,7 @@ dissect_v9_v10_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int 
         }
     } else {
         proto_tree_add_text(pdutree, tvb, offset, length,
-                            "Data (%u byte%s), no template found",
+                            "Data_header (%u byte%s), no template found",
                             length, plurality(length, "", "s"));
     }
 
@@ -2920,7 +2920,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
 
         case 31: /* flowLabelIPv6 */
-            /*  RFC5102 defines that Abstract Data Type of this
+            /*  RFC5102 defines that Abstract Data_header Type of this
                 Information Element is unsigned32 */
             if (length == 4) {
                 ti = proto_tree_add_item(pdutree, hf_cflow_ipv6_flowlabel,
@@ -5542,7 +5542,7 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
         }
 
         proto_item_append_text(tmplt_item,
-                               " (Scope Count = %u; Data Count = %u)",
+                               " (Scope Count = %u; Data_header Count = %u)",
                                option_scope_field_count, option_field_count);
         proto_item_set_len(tmplt_item, 6 +4*(option_scope_field_count+option_field_count));
 
@@ -5618,7 +5618,7 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
     return length;
 }
 
-/* Data Template Dissection */
+/* Data_header Template Dissection */
 static int
 dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int offset, int length,
                              hdrinfo_t *hdrinfo_p, guint16 flowset_id _U_)
@@ -7396,7 +7396,7 @@ proto_register_netflow(void)
           NULL, HFILL}
         },
         {&hf_cflow_information_element_data_type,
-         {"Information Element Data Type", "cflow.information_element_data_type",
+         {"Information Element Data_header Type", "cflow.information_element_data_type",
           FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL}
         },

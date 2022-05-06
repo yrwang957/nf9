@@ -41,7 +41,7 @@ void printBuf()
 
         if(bs[it].type == BUF_TEMPLATE)
         {
-            TemplateFlowSet* t = (TemplateFlowSet*)bs[it].p;
+            TemplateFlowSet_header* t = (TemplateFlowSet_header*)bs[it].p;
             printf("  id %u, c %u\n", ntohs(t->templateId), ntohs(t->fieldCount));
 
             char* p = (char*)t + 4;
@@ -86,7 +86,7 @@ void printBuf()
 
         if(bs[it].type == BUF_DATA)
         {
-            Data* t = (Data*)bs[it].p;
+            Data_header* t = (Data_header*)bs[it].p;
             printf("  id %u, l %u\n\n", ntohs(t->flowSetId), ntohs(t->length));
         }
     }
@@ -94,7 +94,7 @@ void printBuf()
 }
 
 //+----------------------+
-//| Print Data with json |
+//| Print Data_header with json |
 //+----------------------+
 void printJsonData()
 {
@@ -104,7 +104,7 @@ void printJsonData()
     printf("--------\n");
     printf("{");
 
-    //find Data
+    //find Data_header
     int i = 0;
     for(i = 0; i < BUF_SIZE; ++i)
     {
@@ -121,15 +121,15 @@ void printJsonData()
                     ++dataCounter;
                     printf("\n    \"%d\" :\n    [", id);
 
-                    //a pair{Template, Data}, Data have one or more flow
-                    TemplateFlowSet* t = (TemplateFlowSet*)bs[j].p;
+                    //a pair{Template, Data_header}, Data_header have one or more flow
+                    TemplateFlowSet_header* t = (TemplateFlowSet_header*)bs[j].p;
                     int fieldCount = ntohs(t->fieldCount);
 
-                    Data* d = (Data*)bs[i].p;
+                    Data_header* d = (Data_header*)bs[i].p;
                     int dLength = ntohs(d->length);
 
-                    //locate Data pointer
-                    char* pd = bs[i].p + sizeof(Data);
+                    //locate Data_header pointer
+                    char* pd = bs[i].p + sizeof(Data_header);
 
                     //each flow in data
                     int pLength = 0;
@@ -137,7 +137,7 @@ void printJsonData()
                     for(recordCounter = 0; ; ++recordCounter)
                     {
                         //Template place reset
-                        char* pt = bs[j].p + sizeof(TemplateFlowSet);
+                        char* pt = bs[j].p + sizeof(TemplateFlowSet_header);
 
                         printf("%s\n", recordCounter ? "," : "");
                         printf("        {");

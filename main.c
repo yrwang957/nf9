@@ -8,10 +8,10 @@
 
 #include "main.h"
 #include "def.h"
-#include "nf9r.h"
+#include "nf9headers.h"
 #include "udp.h"
 
-void showPacketHeader(NF9Header* pH);
+void _showPacketHeader(NetFlow9_header* pH);
 
 int main(int argc, char** argv)
 {
@@ -38,11 +38,11 @@ void run()
             continue;
         }
 
-        NF9Header* pH = (NF9Header*)sock_buf;
+        NetFlow9_header* pH = (NetFlow9_header*)sock_buf;
         uint16_t version = ntohs(pH->version);
         uint16_t count = ntohs(pH->count);
 
-        showPacketHeader(pH);
+        _showPacketHeader(pH);
 
         if(version != 9)
         {
@@ -53,45 +53,28 @@ void run()
         // +----------------+
         // | Unpack FlowSet |
         // +----------------+
-        uint16_t flowSetId = 0;
         uint16_t length = 0;
         int returned_count = 0;
         int processed_count = 0;
-        int processed_byte = sizeof(NF9Header);
-        uint8_t* ptr_buf = sock_buf + sizeof(NF9Header);
+        int processed_byte = sizeof(NetFlow9_header);
+        uint8_t* ptr_buf = sock_buf + sizeof(NetFlow9_header);
 
         // foreach FlowSet
         while((bytes - processed_byte >= 4) && (count > processed_count))
         {
-            FlowSetHeader* pHeader = (FlowSetHeader*)ptr_buf;
-            flowSetId = ntohs(pHeader->flowSetId);
-            length = ntohs(pHeader->length);
+            FlowSet_header* fs_header = (FlowSet_header*)ptr_buf;
+            length = ntohs(fs_header->length);
 
-            printf("  id %hu, len %hu\n\n", flowSetId, length);
+            printf("Segment %u:\n", processed_count + 1);
 
-            switch(flowSetId)
-            {
-            // Template sets
-            case TEMPLATE_FLOWSET:
-                returned_count = templateFlowSet(pHeader);
-                break;
-
-            // Option Template sets
-            case OPTION_TEMPLATE:
-               // ignore for now
-                // returned_count = optionTemplate(pHeader);
-                break;
-
-            // Data sets
-            default:
-                returned_count = data(pHeader);
-                break;
-            }
+            returned_count = process_flowSet(fs_header);
 
             processed_count += returned_count; // accumulate count(reference to v9 header)
             processed_byte += (int)length; // accumulate processed byte(reference to udp received)
             ptr_buf += (uint8_t)length; // forward pointer to next FlowSet
-            printf("processed count:%d/%d\n", processed_count, count);
+
+//            printf("  process id: %u, length: %u\n", flowSetId, length);
+            printf("  processed count: %d/%d\n", processed_count, count);
         }
         printf("\n");
     } // while loop
@@ -107,6 +90,8 @@ int init(int argc, char** argv)
         printf("[ ERR]init_socket() failed\n");
         return ret;
     }
+
+    // TODO: delete
 /*
     if((ret = initBuf()) != SUCCESS)
     {
@@ -125,8 +110,9 @@ int init(int argc, char** argv)
     return ret;
 }
 
-void showPacketHeader(NF9Header* pH)
+void _showPacketHeader(NetFlow9_header* pH)
 {
+    char time_str[256] = {};
     uint16_t version = ntohs(pH->version);
     uint16_t count = ntohs(pH->count);
     uint32_t sysUptime = ntohl(pH->systemUpTime);
@@ -137,21 +123,28 @@ void showPacketHeader(NF9Header* pH)
     time_t unixSec_timet = (time_t)unixSec;
     struct tm* unixSec_tm = localtime( &unixSec_timet );
 
-    printf("+--------------+\n");
-    printf("| Header       |\n");
-    printf("+--------------+\n");
-    printf("| version      | %hu\n",  version);
-    printf("| count        | %hu\n",  count);
-    printf("| systemUpTime | %u\n",   sysUptime);
-    printf("| unixSeconds  | %hu (%4d-%02d-%02d %02d:%02d:%02d)\n",
-        unixSec,
+    snprintf(time_str, sizeof(time_str), "%u day %u hr %u min %u sec",
+        (sysUptime) / 86400000,
+        (sysUptime) / 3600000 % 24,
+        (sysUptime) / 60000 % 60,
+        (sysUptime) / 1000 % 60);
+
+    printf("+------------------------------------------+\n");
+    printf("| Header                                   |\n");
+    printf("+--------------+---------------------------+\n");
+    printf("| version      | %-10hu                |\n",  version);
+    printf("| count        | %-10hu                |\n",  count);
+    printf("| systemUpTime | %-25s |\n", time_str);
+    printf("| unixSeconds  | %4d-%02d-%02d %02d:%02d:%02d       |\n",
         unixSec_tm->tm_year + 1900,
         unixSec_tm->tm_mon + 1,
         unixSec_tm->tm_mday,
         unixSec_tm->tm_hour,
         unixSec_tm->tm_min,
         unixSec_tm->tm_sec);
-    printf("| packetSeq    | %u\n",   packetSeq);
-    printf("| SourceId     | %u\n", sourceId);
-    printf("+--------------+\n\n");
+    printf("| packetSeq    | %-10u                |\n",   packetSeq);
+    printf("| SourceId     | %-10u                |\n", sourceId);
+    printf("+--------------+---------------------------+\n\n");
+
+    return;
 }

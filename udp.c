@@ -48,16 +48,6 @@ int receive()
         return FAILED;
     }
 
-/*
-    char* p = (char*)sock_buf;
-    unsigned char ff = 0xff;
-    printf("  %02x %02x %02x %02x\n",   p[ 0]&ff, p[ 1]&ff, p[ 2]&ff, p[ 3]&ff);
-    printf("  %02x %02x %02x %02x\n",   p[ 4]&ff, p[ 5]&ff, p[ 6]&ff, p[ 7]&ff);
-    printf("  %02x %02x %02x %02x\n",   p[ 8]&ff, p[ 9]&ff, p[10]&ff, p[11]&ff);
-    printf("  %02x %02x %02x %02x\n",   p[12]&ff, p[13]&ff, p[14]&ff, p[15]&ff);
-    printf("  %02x %02x %02x %02x\n\n", p[16]&ff, p[17]&ff, p[18]&ff, p[19]&ff);
-*/
-
     printf("[INFO] Received %d from %s:%d\n", bytes, inet_ntoa(from.sin_addr), from.sin_port);
     return SUCCESS;
 }
