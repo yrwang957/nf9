@@ -4,7 +4,7 @@
 #include "nf9headers.h"
 #include "def.h"
 
-char* _fs_id_to_string(uint16_t fs_id)
+char* _fs_id_string(uint16_t fs_id)
 {
     switch(fs_id)
     {
@@ -23,94 +23,90 @@ int process_flowSet(FlowSet_header* fs_header)
 {
     uint16_t fs_id = 0;
     uint16_t length = 0;
-    int returned_count = 0;
+    int ret_processed = 0;
 
     fs_id = ntohs(fs_header->flowSetId);
     length = ntohs(fs_header->length);
 
-    printf("  id  %hu (%s)\n", fs_id, _fs_id_to_string(fs_id));
+    printf("  id  %hu (%s)\n", fs_id, _fs_id_string(fs_id));
     printf("  len %hu\n", length);
 
     switch(fs_id)
     {
-    // Template sets
     case TEMPLATE_FLOWSET:
-        returned_count = templateFlowSet(fs_header);
+        ret_processed = templateFlowSet(fs_header);
         break;
 
-    // Option Template sets
     case OPTION_TEMPLATE:
-        // ignore for now
-        // returned_count = optionTemplate(fs_header);
+        // TODO:
+        // ret_processed = optionTemplate(fs_header);
         break;
 
-    // Data_header sets
     default:
-        returned_count = data(fs_header);
+        ret_processed = data(fs_header);
         break;
     }
 
-    return returned_count;
+    return ret_processed;
 }
 
 // +-----------------+
 // | Template sets   |
 // +-----------------+
-int templateFlowSet(FlowSet_header* p)
+int templateFlowSet(FlowSet_header* header)
 {
     int i = 0;
-    uint16_t length = ntohs(p->length);
+    uint16_t length = ntohs(header->length);
     uint16_t pLength = 4;
 
     printf("    Template:\n");
-    printf("    length %d\n\n", length);
+    printf("    length %d\n", length);
 
-    TemplateFlowSet_header* t = (TemplateFlowSet_header*)((char*)p + sizeof(FlowSet_header));
+    TemplateFlowSet_header* templ_header = (TemplateFlowSet_header*)((char*)header + sizeof(FlowSet_header));
 
-    //Unpack t
+    //Unpack templ_header
     for(i = 0 ; ; ++i)
     {
-        uint16_t templateId = ntohs(t->templateId);
-        uint16_t fieldCount = ntohs(t->fieldCount);
-        uint16_t tLength = 4 + (fieldCount << 2);
+        uint16_t templateId = ntohs(templ_header->templateId);
+        uint16_t fieldCount = ntohs(templ_header->fieldCount);
+        uint16_t templateLen = 4 + (fieldCount << 2);
 
         if(templateId == 0)
             continue;
 
-        printf("      %03d : tId %d, tLength %d, FieldCount %d\n", i, templateId, tLength, fieldCount);
+        printf("      %d: tmplateId %d, templateLen %d, FieldCount %d\n", i + 1, templateId, templateLen, fieldCount);
 
-        // if((ret = putBuf(BUF_TEMPLATE, tLength, templateId, (void*)t)) != SUCCESS)
+        // if((ret = putBuf(BUF_TEMPLATE, templateLen, templateId, (void*)templ_header)) != SUCCESS)
         // {
         //     printf("    ret value %d\n", ret);
         // }
         // printf("\n");
 
-        t = (TemplateFlowSet_header*)((char*)t + tLength);
-        pLength += tLength;
+        templ_header = (TemplateFlowSet_header*)((char*)templ_header + templateLen);
+        pLength += templateLen;
         if((pLength >= length) || ((length - pLength) <= 4))
         {
             break;
         }
     }
-    printf("\n");
 
     return 1;
 }
 
 // +-----------------+
-// | Data_header sets       |
+// | Data sets       |
 // +-----------------+
 int data(FlowSet_header* p)
 {
-    Data_header* d = (Data_header*)p;
-    uint16_t fSId = ntohs(d->flowSetId);
+    Data* d = (Data*)p;
+    uint16_t fSId = ntohs(d->id);
     uint16_t length = ntohs(d->length);
     uint16_t padding = (length - 4) & 0x03;
 
-    printf("    Data_header:\n");
+    printf("    Data:\n");
     printf("    fSId %d, Length %d, Padding %d\n", fSId, length, padding);
 
-    //Data_header no need unpack, include paddding
+    //Data no need unpack, include paddding
     // if((ret = putBuf(BUF_DATA, length, fSId, (void*)d)) != SUCCESS)
     // {
     //     printf("    ret value %d\n", ret);

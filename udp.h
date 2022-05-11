@@ -3,6 +3,8 @@
 
 #define DEFAULT_BINDING_PORT (2055)
 
+extern struct in_addr sender_address;
+extern unsigned short sender_port;
 extern uint8_t sock_buf[];
 extern int bytes;
 

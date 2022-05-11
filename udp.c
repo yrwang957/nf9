@@ -10,6 +10,8 @@
 uint8_t sock_buf[65535];
 int bytes;
 
+struct in_addr sender_address;
+unsigned short sender_port;
 static int fd;
 static struct sockaddr_in from;
 
@@ -47,6 +49,8 @@ int receive()
         printf("[WARN] %s\n", bytes == 0 ? "Received zero len" : "Error while receiving");
         return FAILED;
     }
+    sender_address = from.sin_addr;
+    sender_port = from.sin_port;
 
     printf("[INFO] Received %d from %s:%d\n", bytes, inet_ntoa(from.sin_addr), from.sin_port);
     return SUCCESS;

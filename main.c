@@ -11,7 +11,7 @@
 #include "nf9headers.h"
 #include "udp.h"
 
-void _showPacketHeader(NetFlow9_header* pH);
+void _showPacketHeader(NetFlow9_header* packet_header);
 
 int main(int argc, char** argv)
 {
@@ -38,11 +38,11 @@ void run()
             continue;
         }
 
-        NetFlow9_header* pH = (NetFlow9_header*)sock_buf;
-        uint16_t version = ntohs(pH->version);
-        uint16_t count = ntohs(pH->count);
+        NetFlow9_header* packet_header = (NetFlow9_header*)sock_buf;
+        uint16_t version = ntohs(packet_header->version);
+        uint16_t count = ntohs(packet_header->count);
 
-        _showPacketHeader(pH);
+        _showPacketHeader(packet_header);
 
         if(version != 9)
         {
@@ -59,7 +59,7 @@ void run()
         int processed_byte = sizeof(NetFlow9_header);
         uint8_t* ptr_buf = sock_buf + sizeof(NetFlow9_header);
 
-        // foreach FlowSet
+        // Foreach FlowSet
         while((bytes - processed_byte >= 4) && (count > processed_count))
         {
             FlowSet_header* fs_header = (FlowSet_header*)ptr_buf;
@@ -69,14 +69,15 @@ void run()
 
             returned_count = process_flowSet(fs_header);
 
-            processed_count += returned_count; // accumulate count(reference to v9 header)
-            processed_byte += (int)length; // accumulate processed byte(reference to udp received)
-            ptr_buf += (uint8_t)length; // forward pointer to next FlowSet
+            processed_count += returned_count; // Accumulate count(reference to v9 header)
+            processed_byte += (int)length; // Accumulate processed byte(reference to udp received)
+            ptr_buf += (uint8_t)length; // Pointer forward to next
 
-//            printf("  process id: %u, length: %u\n", flowSetId, length);
-            printf("  processed count: %d/%d\n", processed_count, count);
+            printf("  Processed count: %d/%d\n", processed_count, count);
         }
         printf("\n");
+
+        fflush(stdout);
     } // while loop
 }
 
@@ -110,15 +111,15 @@ int init(int argc, char** argv)
     return ret;
 }
 
-void _showPacketHeader(NetFlow9_header* pH)
+void _showPacketHeader(NetFlow9_header* header)
 {
     char time_str[256] = {};
-    uint16_t version = ntohs(pH->version);
-    uint16_t count = ntohs(pH->count);
-    uint32_t sysUptime = ntohl(pH->systemUpTime);
-    uint32_t unixSec = (time_t)ntohl(pH->unixSeconds);
-    uint32_t packetSeq = ntohl(pH->packetSeq);
-    uint32_t sourceId = ntohl(pH->sourceId);
+    uint16_t version = ntohs(header->version);
+    uint16_t count = ntohs(header->count);
+    uint32_t sysUptime = ntohl(header->systemUpTime);
+    uint32_t unixSec = ntohl(header->unixSeconds);
+    uint32_t packetSeq = ntohl(header->packetSeq);
+    uint32_t sourceId = ntohl(header->sourceId);
 
     time_t unixSec_timet = (time_t)unixSec;
     struct tm* unixSec_tm = localtime( &unixSec_timet );
@@ -129,22 +130,22 @@ void _showPacketHeader(NetFlow9_header* pH)
         (sysUptime) / 60000 % 60,
         (sysUptime) / 1000 % 60);
 
-    printf("+------------------------------------------+\n");
-    printf("| Header                                   |\n");
-    printf("+--------------+---------------------------+\n");
-    printf("| version      | %-10hu                |\n",  version);
-    printf("| count        | %-10hu                |\n",  count);
-    printf("| systemUpTime | %-25s |\n", time_str);
-    printf("| unixSeconds  | %4d-%02d-%02d %02d:%02d:%02d       |\n",
+    printf("+--------------------------------------------+\n");
+    printf("| Header                                     |\n");
+    printf("+--------------+-----------------------------+\n");
+    printf("| version      | %-10hu                  |\n",  version);
+    printf("| count        | %-10hu                  |\n",  count);
+    printf("| systemUpTime | %-27s |\n", time_str);
+    printf("| unixSeconds  | %4d-%02d-%02d %02d:%02d:%02d         |\n",
         unixSec_tm->tm_year + 1900,
         unixSec_tm->tm_mon + 1,
         unixSec_tm->tm_mday,
         unixSec_tm->tm_hour,
         unixSec_tm->tm_min,
         unixSec_tm->tm_sec);
-    printf("| packetSeq    | %-10u                |\n",   packetSeq);
-    printf("| SourceId     | %-10u                |\n", sourceId);
-    printf("+--------------+---------------------------+\n\n");
+    printf("| packetSeq    | %-10u                  |\n", packetSeq);
+    printf("| sourceId     | %-10u                  |\n", sourceId);
+    printf("+--------------+-----------------------------+\n\n");
 
     return;
 }
