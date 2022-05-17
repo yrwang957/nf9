@@ -42,6 +42,7 @@ int process_flowSet(FlowSet_header* fs_header)
         // ret_processed = optionTemplate(fs_header);
         break;
 
+    // Default is Data
     default:
         ret_processed = data(fs_header);
         break;
@@ -56,13 +57,14 @@ int process_flowSet(FlowSet_header* fs_header)
 int templateFlowSet(FlowSet_header* header)
 {
     int i = 0;
+    int processed_flowset = 0;
     uint16_t length = ntohs(header->length);
-    uint16_t pLength = 4;
+    uint16_t processed_bytes = 4;
 
     printf("    Template:\n");
     printf("    length %d\n", length);
 
-    TemplateFlowSet_header* templ_header = (TemplateFlowSet_header*)((char*)header + sizeof(FlowSet_header));
+    TemplateFlowSet_header* templ_header = (TemplateFlowSet_header*)((uint8_t*)header + sizeof(FlowSet_header));
 
     //Unpack templ_header
     for(i = 0 ; ; ++i)
@@ -74,7 +76,21 @@ int templateFlowSet(FlowSet_header* header)
         if(templateId == 0)
             continue;
 
-        printf("      %d: tmplateId %d, templateLen %d, FieldCount %d\n", i + 1, templateId, templateLen, fieldCount);
+        printf("      %d: id %d, FieldCount %d (len %d)\n", i + 1, templateId, fieldCount, templateLen);
+
+int prinnttempl = 0;
+if(prinnttempl)
+{
+        uint8_t* ptr = ((uint8_t*)templ_header) + 4;
+        for(int fieldIdx = 0; fieldIdx < fieldCount; ++fieldIdx)
+        {
+            uint16_t field_value = ptr[0] << 8 | ptr[1];
+            uint16_t field_length = ptr[2] << 8 | ptr[3];
+
+            printf("       %2hu: v %-3hu, l %-3hu\n", fieldIdx + 1, field_value, field_length);
+            ptr += 4;
+        }
+}
 
         // if((ret = putBuf(BUF_TEMPLATE, templateLen, templateId, (void*)templ_header)) != SUCCESS)
         // {
@@ -82,15 +98,17 @@ int templateFlowSet(FlowSet_header* header)
         // }
         // printf("\n");
 
-        templ_header = (TemplateFlowSet_header*)((char*)templ_header + templateLen);
-        pLength += templateLen;
-        if((pLength >= length) || ((length - pLength) <= 4))
+        // Next template
+        ++processed_flowset;
+        templ_header = (TemplateFlowSet_header*)(((uint8_t*)templ_header) + templateLen);
+        processed_bytes += templateLen;
+        if((processed_bytes >= length) || ((length - processed_bytes) <= 4))
         {
             break;
         }
     }
 
-    return 1;
+    return processed_flowset;
 }
 
 // +-----------------+
